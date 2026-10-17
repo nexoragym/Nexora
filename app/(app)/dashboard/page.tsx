@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import {
+  SessionBanner,
+  SessionBannerFallback,
+} from "../../../components/auth/SessionBanner";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
@@ -15,6 +20,10 @@ export default function DashboardPage() {
         title="Inicio"
         description="Pantalla de demostración: todos los valores son de prueba."
       />
+
+      <Suspense fallback={<SessionBannerFallback />}>
+        <SessionBanner />
+      </Suspense>
 
       <Card className="flex flex-col gap-6 sm:flex-row sm:items-center">
         <ProgressRing
