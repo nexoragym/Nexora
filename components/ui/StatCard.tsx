@@ -17,7 +17,7 @@ export function StatCard({
   return (
     <Card className="flex flex-col gap-1">
       <p className="text-sm text-muted">{label}</p>
-      <p className="text-3xl font-semibold tracking-tight tabular-nums">
+      <p className="text-4xl font-semibold tracking-tight tabular-nums">
         {value}
       </p>
       {hint ? (
