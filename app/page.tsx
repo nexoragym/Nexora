@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Logo } from "../components/brand/Logo";
 import { Badge } from "../components/ui/Badge";
 import { ButtonLink } from "../components/ui/ButtonLink";
 import { Card } from "../components/ui/Card";
@@ -35,17 +36,7 @@ export default function Home() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="flex items-center justify-between gap-4 px-4 py-5 sm:px-10 lg:px-16">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-accent to-accent-hover text-lg font-bold text-accent-foreground"
-          >
-            N
-          </span>
-          <span className="text-xl font-semibold tracking-wide">
-            {siteConfig.name}
-          </span>
-        </div>
+        <Logo size="lg" />
         <nav aria-label="Acceso" className="flex items-center gap-2">
           <ButtonLink href="/login" variant="secondary" size="md">
             Iniciar sesión

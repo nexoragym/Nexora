@@ -1,11 +1,10 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "../../lib/navigation";
-import { siteConfig } from "../../lib/site";
 import { cn } from "../../lib/cn";
+import { Logo } from "../brand/Logo";
 import { NavIcon } from "./NavIcon";
 
 type SidebarProps = {
@@ -25,18 +24,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         collapsed ? "w-20" : "w-64",
       )}
     >
-      <div className="flex h-16 items-center gap-3 px-5">
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-accent to-accent-hover font-bold text-accent-foreground"
-        >
-          N
-        </span>
-        {collapsed ? null : (
-          <span className="text-lg font-semibold tracking-wide">
-            {siteConfig.name}
-          </span>
-        )}
+      <div className="flex h-16 items-center px-5">
+        <Logo showName={!collapsed} />
       </div>
 
       <nav
