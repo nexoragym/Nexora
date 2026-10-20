@@ -1,6 +1,12 @@
 // Secciones de la barra de navegación. Para añadir una pantalla nueva,
 // se añade una línea aquí y se crea su carpeta con su page.tsx.
-export type NavIconName = "home" | "routines" | "train" | "progress" | "library";
+export type NavIconName =
+  | "home"
+  | "routines"
+  | "train"
+  | "progress"
+  | "library"
+  | "profile";
 
 export type NavItem = {
   href: string;
@@ -14,4 +20,5 @@ export const navItems: NavItem[] = [
   { href: "/entrenar", label: "Entrenar", icon: "train" },
   { href: "/progreso", label: "Progreso", icon: "progress" },
   { href: "/biblioteca", label: "Biblioteca", icon: "library" },
+  { href: "/perfil", label: "Perfil", icon: "profile" },
 ];

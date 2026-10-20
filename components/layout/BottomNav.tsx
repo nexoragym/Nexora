@@ -20,12 +20,12 @@ export function BottomNav() {
           const activo =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
-            <li key={item.href} className="flex-1">
+            <li key={item.href} className="min-w-0 flex-1">
               <Link
                 href={item.href}
                 aria-current={activo ? "page" : undefined}
                 className={cn(
-                  "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+                  "flex h-16 flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-medium transition-colors",
                   activo ? "text-foreground" : "text-muted hover:text-foreground",
                 )}
               >
@@ -33,7 +33,7 @@ export function BottomNav() {
                   name={item.icon}
                   className={activo ? "text-accent" : undefined}
                 />
-                <span>{item.label}</span>
+                <span className="max-w-full truncate">{item.label}</span>
               </Link>
             </li>
           );
