@@ -22,12 +22,10 @@ const iconos: Record<NavIconName, ReactNode> = {
       <path d="M7 20v-7M12 20V6M17 20v-10" />
     </>
   ),
-  components: (
+  library: (
     <>
-      <rect x="4" y="4" width="7" height="7" rx="1.5" />
-      <rect x="13" y="4" width="7" height="7" rx="1.5" />
-      <rect x="4" y="13" width="7" height="7" rx="1.5" />
-      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+      <path d="M4 19.5V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2.5z" />
+      <path d="M8 8h7M8 12h5" />
     </>
   ),
 };
