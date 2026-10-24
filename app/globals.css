@@ -69,6 +69,114 @@ body {
   color: var(--accent-foreground);
 }
 
+/* ==========================================================
+   NEXORA · Animaciones discretas
+   ========================================================== */
+
+/* Aparece suavemente subiendo un poco */
+@keyframes nx-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.nx-fade-up {
+  animation: nx-fade-up 0.7s ease-out both;
+}
+
+/* Cambio de pestaña dentro de la app: más corto y sutil */
+@keyframes nx-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.nx-page-in {
+  animation: nx-page-in 0.35s ease-out both;
+}
+
+/* Luces de fondo que flotan despacio */
+@keyframes nx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.nx-float {
+  animation: nx-float 9s ease-in-out infinite;
+}
+
+/* Avatar: fondo de colores que cambia */
+@keyframes nx-colores {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.nx-avatar-bg {
+  background-image: linear-gradient(
+    135deg,
+    #e11d2e,
+    #f97316,
+    #db2777,
+    #7c3aed,
+    #e11d2e
+  );
+  background-size: 300% 300%;
+  animation: nx-colores 8s ease infinite;
+}
+.nx-avatar:hover .nx-avatar-bg {
+  animation-duration: 2s;
+}
+
+/* Avatar: aro con brillo que respira */
+@keyframes nx-brillo {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgb(225 29 46 / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgb(225 29 46 / 0.65);
+  }
+}
+.nx-avatar-ring {
+  animation: nx-brillo 3.5s ease-in-out infinite;
+}
+
+/* Logo de la barra lateral: brillo suave y giro al pasar el cursor */
+@keyframes nx-logo-brillo {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(225 29 46 / 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgb(225 29 46 / 0.55));
+  }
+}
+.nx-logo svg {
+  animation: nx-logo-brillo 4s ease-in-out infinite;
+  transition: transform 0.4s ease;
+}
+.nx-logo:hover svg {
+  transform: rotate(-8deg) scale(1.1);
+}
+
 /* Respeta la opción del sistema "reducir movimiento" */
 @media (prefers-reduced-motion: reduce) {
   *,

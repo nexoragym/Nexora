@@ -1,39 +1,27 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
-import { RoutineCard } from "../../../components/ui/RoutineCard";
+import { RutinasContent } from "./RutinasContent";
 
 export const metadata: Metadata = { title: "Rutinas" };
+
+// Lo que se ve mientras se carga tu rutina.
+function RutinasCargando() {
+  return (
+    <div aria-busy="true" className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+      <span className="sr-only">Cargando tus rutinas…</span>
+      <div className="h-96 animate-pulse rounded-3xl bg-surface-2" />
+    </div>
+  );
+}
 
 export default function RutinasPage() {
   return (
     <PageContainer>
-      <PageHeader
-        title="Rutinas"
-        description="Pantalla de demostración: estas rutinas son de prueba y el botón Iniciar aún no lleva a ninguna pantalla."
-      />
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
-        <RoutineCard
-          title="Pecho"
-          level="Principiante"
-          exercises={3}
-          sets={10}
-          duration="45 min"
-        />
-        <RoutineCard
-          title="Espalda"
-          level="Intermedio"
-          exercises={3}
-          sets={8}
-          duration="40 min"
-        />
-        <RoutineCard
-          title="Pierna"
-          level="Avanzado"
-          exercises={3}
-          sets={6}
-          duration="35 min"
-        />
-      </div>
+      <PageHeader title="Rutinas" description="Tus programas de entrenamiento." />
+      <Suspense fallback={<RutinasCargando />}>
+        <RutinasContent />
+      </Suspense>
     </PageContainer>
   );
 }

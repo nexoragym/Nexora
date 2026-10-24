@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
+import { Badge } from "../../../components/ui/Badge";
+import { ButtonLink } from "../../../components/ui/ButtonLink";
 import { Card } from "../../../components/ui/Card";
-import { ProgressBar } from "../../../components/ui/ProgressBar";
-import { StatCard } from "../../../components/ui/StatCard";
 
 export const metadata: Metadata = { title: "Progreso" };
 
@@ -11,21 +11,23 @@ export default function ProgresoPage() {
     <PageContainer>
       <PageHeader
         title="Progreso"
-        description="Pantalla de demostración: todos los valores son de prueba."
+        description="Tus gráficas, rachas y fuerza por músculo."
       />
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard label="Entrenamientos" value="12" hint="Demostración" />
-        <StatCard
-          label="Racha"
-          value="4 días"
-          hint="Demostración"
-          tone="success"
-        />
-        <StatCard label="Volumen" value="8.450 kg" hint="Demostración" />
-      </div>
-      <Card className="flex max-w-2xl flex-col gap-5">
-        <ProgressBar label="Objetivo semanal (demostración)" value={3} max={4} />
-        <ProgressBar label="Rutina completada (demostración)" value={40} />
+      <Card className="flex flex-col gap-4 p-8">
+        <Badge className="self-start">Próximamente</Badge>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Aquí verás tu evolución
+        </h2>
+        <p className="max-w-2xl text-muted">
+          Cuando puedas registrar tus entrenamientos (series, kilos y
+          repeticiones), esta pantalla mostrará tus datos reales. Hasta
+          entonces no enseñamos números de ejemplo.
+        </p>
+        <div>
+          <ButtonLink href="/entrenar" variant="secondary">
+            Ir a Entrenar
+          </ButtonLink>
+        </div>
       </Card>
     </PageContainer>
   );

@@ -25,7 +25,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       )}
     >
       <div className="flex h-16 items-center px-5">
-        <Logo showName={!collapsed} />
+        <Link href="/dashboard" className="nx-logo rounded-xl">
+          <Logo showName={!collapsed} />
+        </Link>
       </div>
 
       <nav

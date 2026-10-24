@@ -4,9 +4,11 @@ import { createClient } from "../../lib/supabase/server";
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import { ButtonLink } from "../ui/ButtonLink";
+import { BannerPlegable } from "./BannerPlegable";
 
 // Saludo con tu nombre, tu correo, y los botones de perfil y cerrar sesión.
-// Depende de cada usuario, así que se prepara en el momento de la petición.
+// Aparece al entrar y se pliega solo. Depende de cada usuario, así que se
+// prepara en el momento de la petición.
 export async function SessionBanner() {
   await connection();
 
@@ -22,21 +24,26 @@ export async function SessionBanner() {
   const nombre: string | null = perfil?.display_name ?? null;
 
   return (
-    <Alert tone="success" title={nombre ? `Hola, ${nombre}` : "Sesión iniciada"}>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <span>Has entrado como {correo ?? "usuario"}.</span>
-        <div className="flex flex-wrap items-center gap-2">
-          <ButtonLink href="/perfil" variant="secondary" size="md">
-            Mi perfil
-          </ButtonLink>
-          <form action={cerrarSesion}>
-            <Button type="submit" variant="secondary" size="md">
-              Cerrar sesión
-            </Button>
-          </form>
+    <BannerPlegable clave={correo ?? "usuario"}>
+      <Alert
+        tone="success"
+        title={nombre ? `Hola, ${nombre}` : "Sesión iniciada"}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <span>Has entrado como {correo ?? "usuario"}.</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <ButtonLink href="/perfil" variant="secondary" size="md">
+              Mi perfil
+            </ButtonLink>
+            <form action={cerrarSesion}>
+              <Button type="submit" variant="secondary" size="md">
+                Cerrar sesión
+              </Button>
+            </form>
+          </div>
         </div>
-      </div>
-    </Alert>
+      </Alert>
+    </BannerPlegable>
   );
 }
 
