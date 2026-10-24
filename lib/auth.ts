@@ -1,4 +1,5 @@
 export type AuthFieldErrors = {
+  nombre?: string;
   correo?: string;
   contrasena?: string;
   repetir?: string;
@@ -7,14 +8,21 @@ export type AuthFieldErrors = {
 export type AuthFormState = {
   error?: string;
   info?: string;
+  nombre?: string;
   correo?: string;
   fieldErrors?: AuthFieldErrors;
 };
 
+export const NOMBRE_MINIMO = 2;
+export const NOMBRE_MAXIMO = 50;
 export const CONTRASENA_MINIMA = 8;
 export const CONTRASENA_MAXIMA = 72;
 
 const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function limpiarNombre(nombre: string): string {
+  return nombre.trim().replace(/\s+/g, " ");
+}
 
 export function esCorreoValido(correo: string): boolean {
   return correo.length <= 254 && REGEX_CORREO.test(correo);
@@ -37,12 +45,17 @@ export function validarInicioSesion(
 }
 
 export function validarRegistro(
+  nombre: string,
   correo: string,
   contrasena: string,
   repetir: string,
 ): AuthFieldErrors {
   const errores: AuthFieldErrors = {};
+  const limpio = limpiarNombre(nombre);
 
+  if (limpio.length < NOMBRE_MINIMO || limpio.length > NOMBRE_MAXIMO) {
+    errores.nombre = `Escribe tu nombre (entre ${NOMBRE_MINIMO} y ${NOMBRE_MAXIMO} caracteres).`;
+  }
   if (!esCorreoValido(correo)) {
     errores.correo = "Escribe un correo electrónico válido.";
   }

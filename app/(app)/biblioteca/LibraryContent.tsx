@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { ExerciseCard } from "../../../components/exercises/ExerciseCard";
 import { Alert } from "../../../components/ui/Alert";
 import { Button } from "../../../components/ui/Button";
@@ -16,12 +17,14 @@ import { createClient } from "../../../lib/supabase/server";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-// Buscador, filtros y lista de ejercicios leídos de la base de datos.
 export async function LibraryContent({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
+  // Depende de cada petición: se declara dinámico antes de hacer nada más.
+  await connection();
+
   const filtros = leerFiltros(await searchParams);
   const supabase = await createClient();
 
@@ -50,7 +53,6 @@ export async function LibraryContent({
   const { data, error } = await consulta;
 
   if (error) {
-    // El código del error no contiene datos personales y ayuda a diagnosticar.
     console.error("[biblioteca] error de Supabase:", error.code ?? error.message);
   }
 

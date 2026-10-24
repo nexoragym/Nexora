@@ -4,7 +4,11 @@ import { useActionState } from "react";
 import { Alert } from "../../../components/ui/Alert";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
-import { CONTRASENA_MINIMA, type AuthFormState } from "../../../lib/auth";
+import {
+  CONTRASENA_MINIMA,
+  NOMBRE_MAXIMO,
+  type AuthFormState,
+} from "../../../lib/auth";
 import { registrarse } from "../actions";
 
 const estadoInicial: AuthFormState = {};
@@ -27,6 +31,14 @@ export function RegisterForm() {
           {estado.info}
         </Alert>
       ) : null}
+      <Input
+        name="nombre"
+        label="Nombre"
+        autoComplete="given-name"
+        maxLength={NOMBRE_MAXIMO}
+        defaultValue={estado.nombre}
+        error={estado.fieldErrors?.nombre}
+      />
       <Input
         name="correo"
         type="email"

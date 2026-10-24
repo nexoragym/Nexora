@@ -1,34 +1,35 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
-import { Button } from "../../../components/ui/Button";
-import { SetTable } from "../../../components/ui/SetTable";
+import { TrainContent } from "./TrainContent";
 
 export const metadata: Metadata = { title: "Entrenar" };
+
+// Lo que se ve mientras se carga tu rutina.
+function EntrenarCargando() {
+  return (
+    <div aria-busy="true" className="flex flex-col gap-6">
+      <span className="sr-only">Cargando tu rutina…</span>
+      <div className="h-40 animate-pulse rounded-3xl bg-surface-2" />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, indice) => (
+          <div
+            key={indice}
+            className="h-64 animate-pulse rounded-3xl bg-surface-2"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function EntrenarPage() {
   return (
     <PageContainer>
-      <PageHeader
-        title="Entrenar"
-        description="Pantalla de demostración: los campos y las casillas se pueden tocar, pero todavía no guardan nada."
-      />
-      <section aria-labelledby="ejercicio" className="flex flex-col gap-4">
-        <h2 id="ejercicio" className="text-2xl font-semibold tracking-tight">
-          Press de banca plano
-        </h2>
-        <SetTable
-          sets={[
-            { previa: "62 kg x 12", kg: "62,5", repes: "12" },
-            { previa: "62 kg x 12", kg: "62,5", repes: "12" },
-            { previa: "62 kg x 12", kg: "62,5", repes: "12" },
-          ]}
-        />
-        <div className="w-full max-w-2xl">
-          <Button variant="secondary" fullWidth>
-            + Añadir serie
-          </Button>
-        </div>
-      </section>
+      <PageHeader title="Entrenar" description="Tu rutina y tus sesiones." />
+      <Suspense fallback={<EntrenarCargando />}>
+        <TrainContent />
+      </Suspense>
     </PageContainer>
   );
 }

@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./lib/supabase/env";
 
 // Pantallas que se pueden ver sin iniciar sesión. Todo lo demás es privado.
-const rutasPublicas = ["/login", "/registro"];
+const rutasPublicas = ["/login", "/registro", "/empezar"];
 
 function esRutaPublica(pathname: string): boolean {
   return (
@@ -68,8 +68,9 @@ export async function proxy(request: NextRequest) {
     return redirigir(request, supabaseResponse, "/login");
   }
 
+  // Quien ya tiene sesión pasa por la bienvenida, que crea su plan si lo tiene pendiente.
   if (haySesion && (pathname === "/login" || pathname === "/registro")) {
-    return redirigir(request, supabaseResponse, "/dashboard");
+    return redirigir(request, supabaseResponse, "/bienvenida");
   }
 
   return supabaseResponse;
