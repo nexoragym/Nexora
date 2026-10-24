@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { Suspense, useState, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
@@ -11,10 +11,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-full flex-1">
-      <Sidebar
-        collapsed={reducida}
-        onToggle={() => setReducida((valor) => !valor)}
-      />
+      <Suspense
+        fallback={
+          <aside
+            aria-hidden="true"
+            className={cn(
+              "fixed inset-y-0 left-0 z-30 hidden border-r border-border bg-surface md:block",
+              reducida ? "w-20" : "w-64",
+            )}
+          />
+        }
+      >
+        <Sidebar
+          collapsed={reducida}
+          onToggle={() => setReducida((valor) => !valor)}
+        />
+      </Suspense>
       <div
         className={cn(
           "flex min-w-0 flex-1 flex-col pb-20 transition-[padding] duration-200 md:pb-0",
@@ -23,7 +35,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         {children}
       </div>
-      <BottomNav />
+      <Suspense
+        fallback={
+          <div
+            aria-hidden="true"
+            className="fixed inset-x-0 bottom-0 z-30 h-16 border-t border-border bg-surface md:hidden"
+          />
+        }
+      >
+        <BottomNav />
+      </Suspense>
     </div>
   );
 }
