@@ -11,6 +11,7 @@ import {
   MUSCLE_OPTIONS,
   escaparBusqueda,
   leerFiltros,
+  palabrasDeBusqueda,
   type Exercise,
 } from "../../../lib/exercises";
 import { createClient } from "../../../lib/supabase/server";
@@ -31,14 +32,16 @@ export async function LibraryContent({
   let consulta = supabase
     .from("exercises")
     .select(
-      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes",
+      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases",
     )
     .eq("is_active", true)
     .order("name")
-    .limit(100);
+    .limit(300);
 
-  if (filtros.q) {
-    consulta = consulta.ilike("name", `%${escaparBusqueda(filtros.q)}%`);
+  // Cada palabra escrita tiene que aparecer en el nombre o en sus otros nombres
+  // (sin importar tildes, mayúsculas ni el orden de las palabras).
+  for (const palabra of palabrasDeBusqueda(filtros.q)) {
+    consulta = consulta.ilike("search_text", `%${escaparBusqueda(palabra)}%`);
   }
   if (filtros.muscle) {
     consulta = consulta.contains("primary_muscles", [filtros.muscle]);
@@ -65,8 +68,8 @@ export async function LibraryContent({
           <Input
             name="q"
             type="search"
-            label="Buscar por nombre"
-            placeholder="Por ejemplo: sentadilla"
+            label="Buscar ejercicio"
+            placeholder="Prueba: press banca, bench press…"
             defaultValue={filtros.q}
             maxLength={50}
             autoComplete="off"
@@ -107,7 +110,8 @@ export async function LibraryContent({
         </Alert>
       ) : ejercicios.length === 0 ? (
         <Alert tone="info" title="Sin resultados">
-          No hay ejercicios con esos filtros. Prueba a quitar alguno.
+          No hay ejercicios con esa búsqueda. Prueba con otras palabras o quita
+          algún filtro.
         </Alert>
       ) : (
         <section aria-label="Resultados" className="flex flex-col gap-3">

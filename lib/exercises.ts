@@ -84,6 +84,8 @@ export type Exercise = {
   difficulty: Difficulty;
   instructions: string[];
   common_mistakes: string[];
+  // Otras formas de escribir el ejercicio (para el buscador).
+  aliases?: string[];
 };
 
 export type ExerciseFilters = {
@@ -121,6 +123,24 @@ export function leerFiltros(params: SearchParams): ExerciseFilters {
 // Evita que los símbolos % y _ del buscador se tomen como comodines.
 export function escaparBusqueda(texto: string): string {
   return texto.replace(/[\\%_]/g, "\\$&");
+}
+
+// Quita tildes y mayúsculas para comparar textos (igual que hace la base de datos).
+export function normalizarBusqueda(texto: string): string {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Divide lo que escribe la persona en palabras sueltas (máximo 6).
+export function palabrasDeBusqueda(texto: string, maximo = 6): string[] {
+  return normalizarBusqueda(texto)
+    .split(" ")
+    .filter((palabra) => palabra.length > 0)
+    .slice(0, maximo);
 }
 
 export const MUSCLE_OPTIONS = MUSCLES.map((valor) => ({

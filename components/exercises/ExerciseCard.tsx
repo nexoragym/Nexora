@@ -22,6 +22,7 @@ export function ExerciseCard({ exercise }: { exercise: Exercise }) {
   const secundarios = exercise.secondary_muscles
     .map((musculo) => MUSCLE_LABELS[musculo])
     .join(", ");
+  const otrosNombres = (exercise.aliases ?? []).slice(0, 8).join(", ");
 
   return (
     <Card className="flex flex-col gap-4">
@@ -73,6 +74,12 @@ export function ExerciseCard({ exercise }: { exercise: Exercise }) {
                   <li key={indice}>{error}</li>
                 ))}
               </ul>
+            </div>
+          ) : null}
+          {otrosNombres ? (
+            <div>
+              <h4 className="font-semibold">También se conoce como</h4>
+              <p className="mt-2 text-muted">{otrosNombres}</p>
             </div>
           ) : null}
           <p className="text-xs text-muted">
