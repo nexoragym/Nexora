@@ -5,8 +5,13 @@ import { cn } from "../../lib/cn";
 import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
 
+type AppShellProps = {
+  children: ReactNode;
+  esAdmin?: boolean;
+};
+
 // Estructura común de las pantallas de la app: barra lateral + contenido.
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, esAdmin = false }: AppShellProps) {
   const [reducida, setReducida] = useState(false);
 
   return (
@@ -25,6 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Sidebar
           collapsed={reducida}
           onToggle={() => setReducida((valor) => !valor)}
+          showAdmin={esAdmin}
         />
       </Suspense>
       <div

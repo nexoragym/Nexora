@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems } from "../../lib/navigation";
+import { adminItem, navItems, type NavItem } from "../../lib/navigation";
 import { cn } from "../../lib/cn";
 import { Logo } from "../brand/Logo";
 import { NavIcon } from "./NavIcon";
@@ -10,11 +10,47 @@ import { NavIcon } from "./NavIcon";
 type SidebarProps = {
   collapsed: boolean;
   onToggle: () => void;
+  showAdmin?: boolean;
 };
+
+type EnlaceProps = {
+  item: NavItem;
+  pathname: string;
+  collapsed: boolean;
+};
+
+function Enlace({ item, pathname, collapsed }: EnlaceProps) {
+  const activo =
+    pathname === item.href || pathname.startsWith(`${item.href}/`);
+  return (
+    <Link
+      href={item.href}
+      aria-current={activo ? "page" : undefined}
+      title={collapsed ? item.label : undefined}
+      className={cn(
+        "flex h-12 items-center gap-3 rounded-xl px-3 font-medium transition-colors",
+        collapsed && "justify-center",
+        activo
+          ? "bg-accent/15 text-foreground"
+          : "text-muted hover:bg-surface-2 hover:text-foreground",
+      )}
+    >
+      <NavIcon
+        name={item.icon}
+        className={cn("shrink-0", activo && "text-accent")}
+      />
+      {collapsed ? (
+        <span className="sr-only">{item.label}</span>
+      ) : (
+        <span>{item.label}</span>
+      )}
+    </Link>
+  );
+}
 
 // Barra lateral fija de escritorio y tablet. En móvil se oculta
 // y se usa la barra inferior (BottomNav).
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, showAdmin = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -34,35 +70,20 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         aria-label="Navegación principal"
         className="flex flex-1 flex-col gap-1 px-3 py-2"
       >
-        {navItems.map((item) => {
-          const activo =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={activo ? "page" : undefined}
-              title={collapsed ? item.label : undefined}
-              className={cn(
-                "flex h-12 items-center gap-3 rounded-xl px-3 font-medium transition-colors",
-                collapsed && "justify-center",
-                activo
-                  ? "bg-accent/15 text-foreground"
-                  : "text-muted hover:bg-surface-2 hover:text-foreground",
-              )}
-            >
-              <NavIcon
-                name={item.icon}
-                className={cn("shrink-0", activo && "text-accent")}
-              />
-              {collapsed ? (
-                <span className="sr-only">{item.label}</span>
-              ) : (
-                <span>{item.label}</span>
-              )}
-            </Link>
-          );
-        })}
+        {navItems.map((item) => (
+          <Enlace
+            key={item.href}
+            item={item}
+            pathname={pathname}
+            collapsed={collapsed}
+          />
+        ))}
+
+        {showAdmin ? (
+          <div className="mt-2 border-t border-border pt-2">
+            <Enlace item={adminItem} pathname={pathname} collapsed={collapsed} />
+          </div>
+        ) : null}
       </nav>
 
       <div className="border-t border-border p-3">

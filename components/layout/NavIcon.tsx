@@ -34,6 +34,12 @@ const iconos: Record<NavIconName, ReactNode> = {
       <path d="M4 21a8 8 0 0 1 16 0" />
     </>
   ),
+  admin: (
+    <>
+      <path d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z" />
+      <path d="M9 12l2 2 4-4" />
+    </>
+  ),
 };
 
 type NavIconProps = {

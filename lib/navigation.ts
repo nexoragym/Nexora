@@ -6,7 +6,8 @@ export type NavIconName =
   | "train"
   | "progress"
   | "library"
-  | "profile";
+  | "profile"
+  | "admin";
 
 export type NavItem = {
   href: string;
@@ -22,3 +23,10 @@ export const navItems: NavItem[] = [
   { href: "/biblioteca", label: "Biblioteca", icon: "library" },
   { href: "/perfil", label: "Perfil", icon: "profile" },
 ];
+
+// Entrada del panel de administración: solo se muestra a la cuenta superadministradora.
+export const adminItem: NavItem = {
+  href: "/admin",
+  label: "Admin",
+  icon: "admin",
+};
