@@ -27,7 +27,7 @@ async function AdminInicio() {
   await connection();
   const supabase = await exigirSuperadmin();
 
-  const [activos, inactivos, historial] = await Promise.all([
+  const [activos, inactivos, sinImagen, historial] = await Promise.all([
     supabase
       .from("exercises")
       .select("id", { count: "exact", head: true })
@@ -37,6 +37,11 @@ async function AdminInicio() {
       .select("id", { count: "exact", head: true })
       .eq("is_active", false),
     supabase
+      .from("exercises")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true)
+      .is("image_path", null),
+    supabase
       .from("admin_audit_log")
       .select("id, action, details, created_at")
       .order("created_at", { ascending: false })
@@ -45,6 +50,7 @@ async function AdminInicio() {
 
   const numActivos = activos.count ?? 0;
   const numInactivos = inactivos.count ?? 0;
+  const numSinImagen = sinImagen.count ?? 0;
   const ultimos = (historial.data ?? []) as FilaHistorial[];
 
   return (
@@ -53,7 +59,7 @@ async function AdminInicio() {
         <h2 id="resumen" className="text-xl font-semibold">
           Resumen de la biblioteca
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Ejercicios activos"
             value={String(numActivos)}
@@ -68,6 +74,12 @@ async function AdminInicio() {
             label="Total"
             value={String(numActivos + numInactivos)}
             hint="En la base de datos"
+          />
+          <StatCard
+            label="Sin imagen"
+            value={String(numSinImagen)}
+            hint="Ejercicios activos sin foto"
+            tone={numSinImagen === 0 ? "success" : undefined}
           />
         </div>
       </section>
@@ -87,6 +99,15 @@ async function AdminInicio() {
             </span>
           </Link>
           <Link
+            href="/admin/ejercicios?medios=sin_imagen&estado=activos"
+            className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
+          >
+            <span className="text-lg font-semibold">Imágenes y vídeos</span>
+            <span className="text-sm text-muted">
+              Mira qué ejercicios no tienen imagen y súbela desde el editor.
+            </span>
+          </Link>
+          <Link
             href="/admin/historial"
             className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
           >
@@ -95,15 +116,6 @@ async function AdminInicio() {
               Quién cambió qué y cuándo.
             </span>
           </Link>
-          <Card className="flex flex-col gap-2 opacity-70">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-lg font-semibold">Imágenes y vídeos</span>
-              <Badge>Próxima entrega</Badge>
-            </div>
-            <span className="text-sm text-muted">
-              Subir la foto o el vídeo de cada ejercicio.
-            </span>
-          </Card>
           <Card className="flex flex-col gap-2 opacity-70">
             <div className="flex items-center justify-between gap-2">
               <span className="text-lg font-semibold">Rutinas estándar</span>

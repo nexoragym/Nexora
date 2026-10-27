@@ -29,6 +29,7 @@ import {
 export const metadata: Metadata = { title: "Ejercicios · Admin" };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+type Params = Record<string, string | string[] | undefined>;
 
 type FilaEjercicio = {
   id: string;
@@ -39,6 +40,8 @@ type FilaEjercicio = {
   difficulty: Difficulty;
   aliases: string[] | null;
   is_active: boolean;
+  image_path: string | null;
+  video_path: string | null;
 };
 
 const tonoNivel: Record<Difficulty, BadgeTone> = {
@@ -52,11 +55,28 @@ const OPCIONES_ESTADO = [
   { value: "inactivos", label: "Desactivados" },
 ];
 
-function leerEstado(
-  params: Record<string, string | string[] | undefined>,
-): "todos" | "activos" | "inactivos" {
-  const valor = Array.isArray(params.estado) ? params.estado[0] : params.estado;
+const OPCIONES_MEDIOS = [
+  { value: "sin_imagen", label: "Sin imagen" },
+  { value: "sin_video", label: "Sin vídeo" },
+  { value: "completos", label: "Con imagen y vídeo" },
+];
+
+function primero(valor: string | string[] | undefined): string {
+  return Array.isArray(valor) ? (valor[0] ?? "") : (valor ?? "");
+}
+
+function leerEstado(params: Params): "todos" | "activos" | "inactivos" {
+  const valor = primero(params.estado);
   return valor === "activos" || valor === "inactivos" ? valor : "todos";
+}
+
+function leerMedios(
+  params: Params,
+): "todos" | "sin_imagen" | "sin_video" | "completos" {
+  const valor = primero(params.medios);
+  return valor === "sin_imagen" || valor === "sin_video" || valor === "completos"
+    ? valor
+    : "todos";
 }
 
 async function ListaEjercicios({ searchParams }: { searchParams: SearchParams }) {
@@ -66,10 +86,13 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
   const params = await searchParams;
   const filtros = leerFiltros(params);
   const estado = leerEstado(params);
+  const medios = leerMedios(params);
 
   let consulta = supabase
     .from("exercises")
-    .select("id, slug, name, primary_muscles, equipment, difficulty, aliases, is_active")
+    .select(
+      "id, slug, name, primary_muscles, equipment, difficulty, aliases, is_active, image_path, video_path",
+    )
     .order("name")
     .limit(500);
 
@@ -81,6 +104,11 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
   if (filtros.difficulty) consulta = consulta.eq("difficulty", filtros.difficulty);
   if (estado === "activos") consulta = consulta.eq("is_active", true);
   if (estado === "inactivos") consulta = consulta.eq("is_active", false);
+  if (medios === "sin_imagen") consulta = consulta.is("image_path", null);
+  if (medios === "sin_video") consulta = consulta.is("video_path", null);
+  if (medios === "completos") {
+    consulta = consulta.not("image_path", "is", null).not("video_path", "is", null);
+  }
 
   const { data, error } = await consulta;
   if (error) {
@@ -91,7 +119,7 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
   return (
     <div className="flex flex-col gap-6">
       <form method="get" className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
           <Input
             name="q"
             type="search"
@@ -129,6 +157,13 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
             options={OPCIONES_ESTADO}
             defaultValue={estado === "todos" ? "" : estado}
           />
+          <Select
+            name="medios"
+            label="Imagen y vídeo"
+            placeholder="Todos"
+            options={OPCIONES_MEDIOS}
+            defaultValue={medios === "todos" ? "" : medios}
+          />
         </div>
         <div className="flex flex-wrap gap-3">
           <Button type="submit">Buscar</Button>
@@ -140,7 +175,8 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
 
       {error ? (
         <Alert tone="danger" title="No se pudo cargar la lista">
-          Inténtalo de nuevo en unos instantes.
+          Si acabas de actualizar la aplicación, comprueba que has ejecutado la
+          migración 0013 en Supabase.
         </Alert>
       ) : ejercicios.length === 0 ? (
         <Alert tone="info" title="Sin resultados">
@@ -153,7 +189,7 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
             {ejercicios.length === 1 ? "ejercicio" : "ejercicios"}
           </p>
           <div className="overflow-x-auto rounded-3xl border border-border bg-surface">
-            <table className="w-full min-w-[56rem] text-left text-sm">
+            <table className="w-full min-w-[62rem] text-left text-sm">
               <thead className="border-b border-border text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Ejercicio</th>
@@ -161,6 +197,7 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
                   <th className="px-4 py-3 font-medium">Material</th>
                   <th className="px-4 py-3 font-medium">Nivel</th>
                   <th className="px-4 py-3 font-medium">Otros nombres</th>
+                  <th className="px-4 py-3 font-medium">Medios</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 font-medium">
                     <span className="sr-only">Acciones</span>
@@ -200,6 +237,14 @@ async function ListaEjercicios({ searchParams }: { searchParams: SearchParams })
                         }
                       >
                         {numAlias}
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        <div className={fila.image_path ? "text-success" : "text-muted"}>
+                          {fila.image_path ? "Imagen" : "Sin imagen"}
+                        </div>
+                        <div className={fila.video_path ? "text-success" : "text-muted"}>
+                          {fila.video_path ? "Vídeo" : "Sin vídeo"}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         {fila.is_active ? (

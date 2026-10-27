@@ -6,6 +6,7 @@ import {
   type Difficulty,
   type Exercise,
 } from "../../lib/exercises";
+import { urlPublicaMedia, type ConMedia } from "../../lib/media";
 import { Badge, type BadgeTone } from "../ui/Badge";
 import { Card } from "../ui/Card";
 
@@ -15,7 +16,7 @@ const tonoNivel: Record<Difficulty, BadgeTone> = {
   advanced: "danger",
 };
 
-export function ExerciseCard({ exercise }: { exercise: Exercise }) {
+export function ExerciseCard({ exercise }: { exercise: Exercise & ConMedia }) {
   const principales = exercise.primary_muscles
     .map((musculo) => MUSCLE_LABELS[musculo])
     .join(", ");
@@ -23,9 +24,36 @@ export function ExerciseCard({ exercise }: { exercise: Exercise }) {
     .map((musculo) => MUSCLE_LABELS[musculo])
     .join(", ");
   const otrosNombres = (exercise.aliases ?? []).slice(0, 8).join(", ");
+  const imagen = urlPublicaMedia(exercise.image_path);
+  const video = urlPublicaMedia(exercise.video_path);
 
   return (
     <Card className="flex flex-col gap-4">
+      {imagen ? (
+        <div className="-mx-5 -mt-5 overflow-hidden rounded-t-3xl bg-surface-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagen}
+            alt={`Imagen de ${exercise.name}`}
+            loading="lazy"
+            className="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+      ) : video ? (
+        <div className="-mx-5 -mt-5 overflow-hidden rounded-t-3xl bg-surface-2">
+          <video
+            src={video}
+            controls
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label={`Demostración de ${exercise.name}`}
+            className="aspect-[4/3] w-full object-cover"
+          />
+        </div>
+      ) : null}
+
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-lg font-semibold tracking-tight">
           {exercise.name}
@@ -58,6 +86,22 @@ export function ExerciseCard({ exercise }: { exercise: Exercise }) {
           Ver instrucciones
         </summary>
         <div className="mt-3 flex flex-col gap-4 text-sm">
+          {imagen && video ? (
+            <div>
+              <h4 className="font-semibold">Demostración</h4>
+              <video
+                src={video}
+                poster={imagen}
+                controls
+                muted
+                loop
+                playsInline
+                preload="none"
+                aria-label={`Demostración de ${exercise.name}`}
+                className="mt-2 aspect-[4/3] w-full rounded-2xl bg-surface object-cover"
+              />
+            </div>
+          ) : null}
           <div>
             <h4 className="font-semibold">Cómo se hace</h4>
             <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted">

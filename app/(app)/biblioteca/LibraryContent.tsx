@@ -14,6 +14,7 @@ import {
   palabrasDeBusqueda,
   type Exercise,
 } from "../../../lib/exercises";
+import type { ConMedia } from "../../../lib/media";
 import { createClient } from "../../../lib/supabase/server";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -32,7 +33,7 @@ export async function LibraryContent({
   let consulta = supabase
     .from("exercises")
     .select(
-      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases",
+      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, image_path, video_path",
     )
     .eq("is_active", true)
     .order("name")
@@ -59,7 +60,7 @@ export async function LibraryContent({
     console.error("[biblioteca] error de Supabase:", error.code ?? error.message);
   }
 
-  const ejercicios = (data ?? []) as Exercise[];
+  const ejercicios = (data ?? []) as (Exercise & ConMedia)[];
 
   return (
     <div className="flex flex-col gap-6">

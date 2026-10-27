@@ -3,10 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import {
-  ExerciseForm,
-  type EjercicioEditable,
-} from "../../../../../components/admin/ExerciseForm";
+import { ExerciseForm, type EjercicioEditable } from "../../../../../components/admin/ExerciseForm";
+import { MediaUploader } from "../../../../../components/admin/MediaUploader";
 import { PageContainer } from "../../../../../components/layout/Page";
 import { Alert } from "../../../../../components/ui/Alert";
 import { Badge } from "../../../../../components/ui/Badge";
@@ -41,6 +39,8 @@ type FilaEjercicio = {
   common_mistakes: string[];
   aliases: string[] | null;
   is_active: boolean;
+  image_path: string | null;
+  video_path: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -60,7 +60,7 @@ async function EditarEjercicio({ params, searchParams }: PageProps) {
   const { data, error } = await supabase
     .from("exercises")
     .select(
-      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, is_active, created_at, updated_at",
+      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, is_active, image_path, video_path, created_at, updated_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -126,6 +126,28 @@ async function EditarEjercicio({ params, searchParams }: PageProps) {
         ) : null}
       </div>
 
+      <section aria-labelledby="medios" className="flex flex-col gap-4">
+        <h2 id="medios" className="text-xl font-semibold">
+          Imagen y vídeo
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <MediaUploader
+            exerciseId={fila.id}
+            tipo="image"
+            rutaInicial={fila.image_path}
+            titulo="Imagen"
+            ayuda="JPG, PNG o WebP. Lo ideal: horizontal 4:3 (por ejemplo 1200×900) y menos de 300 KB."
+          />
+          <MediaUploader
+            exerciseId={fila.id}
+            tipo="video"
+            rutaInicial={fila.video_path}
+            titulo="Vídeo o animación"
+            ayuda="MP4 o WebM. Lo ideal: bucle de 5 a 8 segundos, 720p, sin sonido y menos de 5 MB."
+          />
+        </div>
+      </section>
+
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_20rem]">
         <ExerciseForm modo="editar" ejercicio={ejercicio} />
 
@@ -156,7 +178,7 @@ async function EditarEjercicio({ params, searchParams }: PageProps) {
             <h2 className="text-lg font-semibold">Duplicar</h2>
             <p className="text-sm text-muted">
               Crea una copia desactivada para hacer una variante sin empezar de
-              cero.
+              cero. La copia no incluye imagen ni vídeo.
             </p>
             <form action={duplicarEjercicio}>
               <input type="hidden" name="id" value={fila.id} />

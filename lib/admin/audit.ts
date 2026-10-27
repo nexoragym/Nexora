@@ -5,6 +5,8 @@ const ETIQUETAS_ACCION: Record<string, string> = {
   "exercise.activate": "Ejercicio activado",
   "exercise.deactivate": "Ejercicio desactivado",
   "exercise.duplicate": "Ejercicio duplicado",
+  "exercise.media_update": "Imagen o vídeo subido",
+  "exercise.media_remove": "Imagen o vídeo quitado",
 };
 
 const NOMBRES_CAMPO: Record<string, string> = {
@@ -36,13 +38,16 @@ export function describirDetalles(detalles: unknown): string {
         ? datos.slug
         : "";
 
+  const tipo =
+    datos.kind === "image" ? "Imagen" : datos.kind === "video" ? "Vídeo" : "";
+
   const cambios = Array.isArray(datos.changed)
     ? datos.changed
         .filter((campo): campo is string => typeof campo === "string")
         .map((campo) => NOMBRES_CAMPO[campo] ?? campo)
     : [];
 
-  const partes = [elemento];
+  const partes = [elemento, tipo];
   if (cambios.length > 0) partes.push(`Cambios: ${cambios.join(", ")}`);
   return partes.filter((parte) => parte.length > 0).join(" · ");
 }
