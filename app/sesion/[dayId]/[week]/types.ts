@@ -10,6 +10,8 @@ export type SessionExercise = {
   restSeconds: number;
   timed: boolean;
   lastWeightKg: number | null;
+  imageUrl: string | null;
+  videoUrl: string | null;
 };
 
 export type SessionInfo = {

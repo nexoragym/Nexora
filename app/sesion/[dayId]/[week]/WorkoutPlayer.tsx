@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ExerciseMedia } from "../../../../components/exercises/ExerciseMedia";
 import { Alert } from "../../../../components/ui/Alert";
 import { Button } from "../../../../components/ui/Button";
 import { ProgressRing } from "../../../../components/ui/ProgressRing";
@@ -59,14 +60,6 @@ function IconoSonido({ activo }: { activo: boolean }) {
   );
 }
 
-function IconoPesa({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
-      <path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" />
-    </svg>
-  );
-}
-
 function IconoCheck() {
   return (
     <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -116,26 +109,6 @@ function Stepper({ label, value, step, min, max, onChange }: StepperProps) {
           +
         </button>
       </div>
-    </div>
-  );
-}
-
-// Hueco para la imagen o animación del ejercicio. Cuando pongas el archivo
-// public/images/ejercicios/<nombre-interno>.jpg, aparece solo.
-function ImagenEjercicio({ slug }: { slug: string }) {
-  return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-border bg-linear-to-br from-accent/40 via-surface-2 to-surface">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center text-accent/70"
-      >
-        <IconoPesa />
-      </div>
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(/images/ejercicios/${slug}.jpg)` }}
-      />
     </div>
   );
 }
@@ -270,6 +243,14 @@ export function WorkoutPlayer({ data }: { data: SessionInfo }) {
       bloqueo?.release().catch(() => {});
     };
   }, [enCurso]);
+
+  // ----- Descarga por adelantado la imagen del siguiente ejercicio -----
+  useEffect(() => {
+    const siguienteEjercicio = data.exercises[idxEj + 1];
+    if (!siguienteEjercicio?.imageUrl) return;
+    const imagen = new window.Image();
+    imagen.src = siguienteEjercicio.imageUrl;
+  }, [data.exercises, idxEj]);
 
   // ----- Guardado de series -----
   async function guardar(registro: Registro, id: string | null) {
@@ -470,9 +451,22 @@ export function WorkoutPlayer({ data }: { data: SessionInfo }) {
               key={ej.exerciseId}
               className="flex items-center gap-4 rounded-3xl border border-border bg-surface p-4"
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent">
-                {i + 1}
-              </span>
+              {ej.imageUrl ? (
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-accent/30 to-surface-2">
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url("${ej.imageUrl}")` }}
+                  />
+                  <span className="absolute left-1 top-1 flex size-6 items-center justify-center rounded-full bg-background/80 text-xs font-semibold text-accent">
+                    {i + 1}
+                  </span>
+                </div>
+              ) : (
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent">
+                  {i + 1}
+                </span>
+              )}
               <div className="flex min-w-0 flex-col">
                 <span className="font-medium">{ej.name}</span>
                 <span className="text-sm text-muted">
@@ -708,7 +702,11 @@ export function WorkoutPlayer({ data }: { data: SessionInfo }) {
             key={`ejercicio-${idxEj}-${idxSerie}`}
             className="nx-page-in mx-auto flex w-full max-w-xl flex-1 flex-col gap-5 px-4 py-6"
           >
-            <ImagenEjercicio slug={ejercicio.slug} />
+            <ExerciseMedia
+              imageUrl={ejercicio.imageUrl}
+              videoUrl={ejercicio.videoUrl}
+              alt={ejercicio.name}
+            />
 
             <div className="flex flex-col gap-3">
               <h1 className="text-3xl font-bold tracking-tight">

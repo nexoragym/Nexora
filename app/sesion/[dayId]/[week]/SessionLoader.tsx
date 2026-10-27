@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Alert } from "../../../../components/ui/Alert";
+import { urlPublicaMedia } from "../../../../lib/media";
 import { nombreSesion } from "../../../../lib/routines/names";
 import { TIMED_EXERCISE_SLUGS } from "../../../../lib/routines/rules";
 import { createClient } from "../../../../lib/supabase/server";
@@ -14,7 +15,7 @@ const SELECT =
   "id, day_number, name, " +
   "routines(id, name, is_active, program_weeks, days_per_week), " +
   "routine_day_exercises(id, sort_order, target_sets, reps_min, reps_max, rest_seconds, " +
-  "exercises(id, slug, name, equipment, instructions))";
+  "exercises(id, slug, name, equipment, instructions, image_path, video_path))";
 
 type FilaEjercicio = {
   id: string;
@@ -29,6 +30,8 @@ type FilaEjercicio = {
     name: string;
     equipment: string;
     instructions: string[];
+    image_path: string | null;
+    video_path: string | null;
   } | null;
 };
 
@@ -113,6 +116,8 @@ export async function SessionLoader({ params }: SessionLoaderProps) {
               restSeconds: fila.rest_seconds,
               timed: TIMED_EXERCISE_SLUGS.includes(fila.exercises.slug),
               lastWeightKg: null,
+              imageUrl: urlPublicaMedia(fila.exercises.image_path),
+              videoUrl: urlPublicaMedia(fila.exercises.video_path),
             },
           ]
         : [],
