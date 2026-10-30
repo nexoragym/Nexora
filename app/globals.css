@@ -177,6 +177,171 @@ body {
   transform: rotate(-8deg) scale(1.1);
 }
 
+/* ==========================================================
+   NEXORA · Racha: llama animada
+   ========================================================== */
+
+/* Parpadeo de la llama (las tres capas parpadean a ritmos distintos) */
+@keyframes nx-flame-flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.03, 0.97) rotate(-1.5deg);
+  }
+  50% {
+    transform: scale(0.98, 1.05) rotate(1deg);
+  }
+  75% {
+    transform: scale(1.02, 0.99) rotate(-0.5deg);
+  }
+}
+.nx-flame-outer,
+.nx-flame-inner,
+.nx-flame-core {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.nx-flame-outer {
+  animation: nx-flame-flicker 1.8s ease-in-out infinite;
+}
+.nx-flame-inner {
+  animation: nx-flame-flicker 1.3s ease-in-out infinite reverse;
+}
+.nx-flame-core {
+  animation: nx-flame-flicker 0.9s ease-in-out infinite;
+}
+
+/* Chispas que suben y se apagan */
+@keyframes nx-spark {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-46px) scale(0.2);
+    opacity: 0;
+  }
+}
+.nx-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nx-spark 2.4s ease-out infinite;
+}
+
+/* Resplandor detrás de la llama */
+@keyframes nx-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.75;
+  }
+}
+.nx-flame-glow {
+  animation: nx-glow 2.6s ease-in-out infinite;
+}
+
+/* ==========================================================
+   NEXORA · Racha: animación de evolución
+   (los retrasos se ponen en cada elemento con animationDelay)
+   ========================================================== */
+
+/* La llama vieja gira cada vez más rápido y se encoge */
+@keyframes nx-evo-out {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  60% {
+    opacity: 1;
+    filter: brightness(1.6);
+  }
+  100% {
+    transform: rotate(720deg) scale(0.1);
+    opacity: 0;
+    filter: brightness(3);
+  }
+}
+.nx-evo-out {
+  animation: nx-evo-out 1.3s ease-in forwards;
+}
+
+/* La llama nueva entra girando y creciendo */
+@keyframes nx-evo-in {
+  0% {
+    transform: rotate(-540deg) scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(20deg) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+.nx-evo-in {
+  animation: nx-evo-in 1.4s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+/* Destello blanco en el momento del cambio */
+@keyframes nx-evo-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  30% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+.nx-evo-flash {
+  animation: nx-evo-flash 0.9s ease-out both;
+}
+
+/* Anillos que se expanden */
+@keyframes nx-evo-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+.nx-evo-ring {
+  animation: nx-evo-ring 1.4s ease-out both;
+}
+
+/* Chispas que salen disparadas hacia fuera (usan --dx y --dy) */
+@keyframes nx-evo-burst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+  }
+}
+.nx-evo-burst {
+  animation: nx-evo-burst 1.1s ease-out both;
+}
+
 /* Respeta la opción del sistema "reducir movimiento" */
 @media (prefers-reduced-motion: reduce) {
   *,
