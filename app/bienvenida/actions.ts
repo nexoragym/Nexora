@@ -99,10 +99,12 @@ export async function crearPlanInicial(
     return { ok: false, error: ERROR_GENERICO };
   }
 
+  // El generador solo ve los ejercicios activos y marcados para rutinas automáticas.
   const { data: ejercicios, error: errorEjercicios } = await supabase
     .from("exercises")
     .select("id, slug, name, primary_muscles, equipment, movement_pattern, difficulty")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .eq("use_in_generator", true);
 
   if (errorEjercicios) {
     console.error("[plan] error al leer ejercicios:", errorEjercicios.code ?? "sin código");

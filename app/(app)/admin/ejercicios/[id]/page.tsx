@@ -38,6 +38,8 @@ type FilaEjercicio = {
   instructions: string[];
   common_mistakes: string[];
   aliases: string[] | null;
+  use_in_generator: boolean | null;
+  popularity: number | null;
   is_active: boolean;
   image_path: string | null;
   video_path: string | null;
@@ -60,7 +62,7 @@ async function EditarEjercicio({ params, searchParams }: PageProps) {
   const { data, error } = await supabase
     .from("exercises")
     .select(
-      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, is_active, image_path, video_path, created_at, updated_at",
+      "id, slug, name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, use_in_generator, popularity, is_active, image_path, video_path, created_at, updated_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -91,6 +93,8 @@ async function EditarEjercicio({ params, searchParams }: PageProps) {
     instructions: fila.instructions,
     commonMistakes: fila.common_mistakes,
     aliases: fila.aliases ?? [],
+    useInGenerator: fila.use_in_generator ?? true,
+    popularity: fila.popularity ?? 0,
     isActive: fila.is_active,
   };
 

@@ -1,8 +1,8 @@
 "use server";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { anotarAccionAdmin } from "../../../../lib/admin/audit";
 import { esSuperadmin } from "../../../../lib/admin/guard";
 import {
   leerFormularioEjercicio,
@@ -18,7 +18,7 @@ const NO_AUTORIZADO = "No tienes permiso para hacer esto.";
 const ERROR_GENERICO = "No se pudo guardar. Inténtalo de nuevo.";
 
 const SELECT_EJERCICIO =
-  "name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, is_active";
+  "name, primary_muscles, secondary_muscles, equipment, movement_pattern, difficulty, instructions, common_mistakes, aliases, use_in_generator, popularity, is_active";
 
 function columnas(valores: EjercicioFormulario) {
   return {
@@ -31,6 +31,8 @@ function columnas(valores: EjercicioFormulario) {
     instructions: valores.instructions,
     common_mistakes: valores.commonMistakes,
     aliases: valores.aliases,
+    use_in_generator: valores.useInGenerator,
+    popularity: valores.popularity,
     is_active: valores.isActive,
   };
 }
@@ -47,26 +49,10 @@ const CAMPOS: Campo[] = [
   "instructions",
   "common_mistakes",
   "aliases",
+  "use_in_generator",
+  "popularity",
   "is_active",
 ];
-
-// Anota la acción en el historial. Si falla, no se cancela el cambio, pero se avisa en el servidor.
-async function anotar(
-  supabase: SupabaseClient,
-  accion: string,
-  id: string,
-  detalles: Record<string, unknown>,
-) {
-  const { error } = await supabase.rpc("log_admin_action", {
-    p_action: accion,
-    p_target_table: "exercises",
-    p_target_id: id,
-    p_details: detalles,
-  });
-  if (error) {
-    console.error("[admin] no se pudo anotar en el historial:", error.code ?? "sin código");
-  }
-}
 
 function refrescar(id?: string) {
   revalidatePath("/admin");
@@ -105,7 +91,7 @@ export async function crearEjercicio(
   }
 
   const id = data.id as string;
-  await anotar(supabase, "exercise.create", id, {
+  await anotarAccionAdmin(supabase, "exercise.create", id, {
     slug: valores.slug,
     name: valores.name,
   });
@@ -155,7 +141,7 @@ export async function guardarEjercicio(
     return { error: ERROR_GENERICO };
   }
 
-  await anotar(supabase, "exercise.update", id, {
+  await anotarAccionAdmin(supabase, "exercise.update", id, {
     name: valores.name,
     changed: cambios,
   });
@@ -183,7 +169,7 @@ export async function cambiarActivoEjercicio(formData: FormData): Promise<void> 
     return;
   }
 
-  await anotar(
+  await anotarAccionAdmin(
     supabase,
     activo ? "exercise.activate" : "exercise.deactivate",
     id,
@@ -242,6 +228,8 @@ export async function duplicarEjercicio(formData: FormData): Promise<void> {
       instructions: original.instructions,
       common_mistakes: original.common_mistakes,
       aliases: original.aliases,
+      use_in_generator: original.use_in_generator,
+      popularity: original.popularity,
       is_active: false,
     })
     .select("id")
@@ -253,7 +241,7 @@ export async function duplicarEjercicio(formData: FormData): Promise<void> {
   }
 
   const nuevoId = creado.id as string;
-  await anotar(supabase, "exercise.duplicate", nuevoId, {
+  await anotarAccionAdmin(supabase, "exercise.duplicate", nuevoId, {
     slug: nuevoSlug,
     name: `${original.name} (copia)`,
   });

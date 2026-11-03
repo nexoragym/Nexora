@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 // Textos del historial de cambios del panel.
 const ETIQUETAS_ACCION: Record<string, string> = {
   "exercise.create": "Ejercicio creado",
@@ -7,6 +9,7 @@ const ETIQUETAS_ACCION: Record<string, string> = {
   "exercise.duplicate": "Ejercicio duplicado",
   "exercise.media_update": "Imagen o vídeo subido",
   "exercise.media_remove": "Imagen o vídeo quitado",
+  "exercise.import": "Importación de ejercicios",
 };
 
 const NOMBRES_CAMPO: Record<string, string> = {
@@ -19,6 +22,8 @@ const NOMBRES_CAMPO: Record<string, string> = {
   instructions: "instrucciones",
   common_mistakes: "errores habituales",
   aliases: "otros nombres",
+  use_in_generator: "uso en rutinas automáticas",
+  popularity: "popularidad",
   is_active: "estado",
 };
 
@@ -26,10 +31,41 @@ export function etiquetaAccion(accion: string): string {
   return ETIQUETAS_ACCION[accion] ?? accion;
 }
 
+// Anota una acción en el historial. Si falla, no se cancela el cambio.
+export async function anotarAccionAdmin(
+  supabase: SupabaseClient,
+  accion: string,
+  id: string,
+  detalles: Record<string, unknown>,
+  tabla = "exercises",
+): Promise<void> {
+  const { error } = await supabase.rpc("log_admin_action", {
+    p_action: accion,
+    p_target_table: tabla,
+    p_target_id: id,
+    p_details: detalles,
+  });
+  if (error) {
+    console.error(
+      "[admin] no se pudo anotar en el historial:",
+      error.code ?? "sin código",
+    );
+  }
+}
+
 // Resumen de una línea de los detalles que guarda cada acción.
 export function describirDetalles(detalles: unknown): string {
   if (typeof detalles !== "object" || detalles === null) return "";
   const datos = detalles as Record<string, unknown>;
+
+  if (typeof datos.created === "number") {
+    const numero = (clave: string) =>
+      typeof datos[clave] === "number" ? (datos[clave] as number) : 0;
+    return (
+      `Creados: ${numero("created")} · Actualizados: ${numero("updated")} · ` +
+      `Omitidos: ${numero("skipped")} · Con error: ${numero("failed")}`
+    );
+  }
 
   const elemento =
     typeof datos.name === "string"

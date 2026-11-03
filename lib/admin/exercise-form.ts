@@ -27,6 +27,8 @@ export type EjercicioFormulario = {
   instructions: string[];
   commonMistakes: string[];
   aliases: string[];
+  useInGenerator: boolean;
+  popularity: number;
   isActive: boolean;
 };
 
@@ -34,6 +36,16 @@ export type EjercicioFormulario = {
 export const ALIAS_RECOMENDADOS = 10;
 
 export const SLUG_REGEX = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+export const POPULARIDAD_OPCIONES = [
+  { value: "0", label: "0 · Normal" },
+  { value: "1", label: "1 · Algo conocido" },
+  { value: "2", label: "2 · Conocido" },
+  {
+    value: "3",
+    label: "3 · Muy conocido (flexiones, dominadas, sentadilla...)",
+  },
+];
 
 // "Extensión de tríceps (polea)" -> "extension-de-triceps-polea"
 export function slugificar(texto: string): string {
@@ -170,6 +182,14 @@ export function leerFormularioEjercicio(
   const problemaAlias = revisarLista(aliases, 40, 80, "Otros nombres");
   if (problemaAlias) errores.aliases = problemaAlias;
 
+  const useInGenerator = formData.get("use_in_generator") === "on";
+
+  const popularidadTexto = texto(formData.get("popularity")).trim();
+  const popularity = popularidadTexto === "" ? 0 : Number(popularidadTexto);
+  if (!Number.isInteger(popularity) || popularity < 0 || popularity > 3) {
+    errores.popularity = "Elige una popularidad entre 0 y 3.";
+  }
+
   const isActive = formData.get("is_active") === "on";
 
   if (
@@ -194,6 +214,8 @@ export function leerFormularioEjercicio(
       instructions,
       commonMistakes,
       aliases,
+      useInGenerator,
+      popularity,
       isActive,
     },
   };

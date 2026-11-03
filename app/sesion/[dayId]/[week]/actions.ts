@@ -1,5 +1,6 @@
 "use server";
 
+import { leerRachaActual } from "../../../../lib/racha-servidor";
 import { nombreSesion } from "../../../../lib/routines/names";
 import { createClient } from "../../../../lib/supabase/server";
 
@@ -17,10 +18,16 @@ type RutinaFila = {
 };
 
 // Crea la sesión de entrenamiento cuando pulsas «Empezar».
+// Devuelve también la racha que tenías antes de este entrenamiento.
 export async function iniciarSesion(
   dayId: unknown,
   week: unknown,
-): Promise<{ ok: boolean; error?: string; sessionId?: string }> {
+): Promise<{
+  ok: boolean;
+  error?: string;
+  sessionId?: string;
+  rachaAntes?: number | null;
+}> {
   if (
     typeof dayId !== "string" ||
     !UUID.test(dayId) ||
@@ -69,6 +76,9 @@ export async function iniciarSesion(
     return { ok: false, error: ERROR_DATOS };
   }
 
+  // Racha antes de entrenar (si no se puede leer, no se muestra evolución).
+  const rachaAntes = await leerRachaActual(supabase);
+
   const { data: creada, error: errorCrear } = await supabase
     .from("workout_sessions")
     .insert({
@@ -90,7 +100,7 @@ export async function iniciarSesion(
     return { ok: false, error: ERROR_GENERICO };
   }
 
-  return { ok: true, sessionId: creada.id as string };
+  return { ok: true, sessionId: creada.id as string, rachaAntes };
 }
 
 // Guarda una serie terminada (si ya existía, la actualiza).
@@ -201,4 +211,11 @@ export async function terminarSesion(
     return { ok: false };
   }
   return { ok: true };
+}
+
+// Racha actual (se usa al terminar el entrenamiento, para ver si cambias de etapa).
+export async function rachaActual(): Promise<{ ok: boolean; racha?: number }> {
+  const supabase = await createClient();
+  const racha = await leerRachaActual(supabase);
+  return racha === null ? { ok: false } : { ok: true, racha };
 }

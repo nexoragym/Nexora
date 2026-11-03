@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { StreakCard } from "../../../components/streak/StreakCard";
 import { Alert } from "../../../components/ui/Alert";
 import { Badge } from "../../../components/ui/Badge";
 import { ButtonLink } from "../../../components/ui/ButtonLink";
@@ -253,15 +254,12 @@ export async function DashboardContent() {
             value={hayDatos ? String(entrenamientos) : "—"}
             hint={hayDatos ? "Completados en total" : sinDatos}
           />
-          <StatCard
-            label="Racha"
-            value={hayDatos ? String(racha) : "—"}
+          <StreakCard
+            racha={racha}
+            hayDatos={hayDatos}
             hint={
-              hayDatos
-                ? "Sin más de 2 días de descanso seguidos"
-                : sinDatos
+              hayDatos ? "Sin más de 2 días de descanso seguidos" : sinDatos
             }
-            tone={racha >= 3 ? "success" : undefined}
           />
           <StatCard
             label="Kilos totales"
