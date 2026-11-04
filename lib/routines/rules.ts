@@ -206,8 +206,15 @@ export const PRESCRIPTIONS: Record<
   },
 };
 
-// Ejercicios que se miden en segundos y no en repeticiones
-export const TIMED_EXERCISE_SLUGS: readonly string[] = ["plancha"];
+// Ejercicios que se miden en segundos y no en repeticiones.
+// Si añades en la biblioteca otro ejercicio de aguantar la posición
+// (isométrico), su identificador (slug) debe estar en esta lista.
+export const TIMED_EXERCISE_SLUGS: readonly string[] = [
+  "plancha",
+  "plancha-lateral",
+  "hollow-hold",
+  "sentadilla-isometrica-en-pared",
+];
 export const TIMED_REPS = { min: 20, max: 40 } as const;
 
 // Material preferido al elegir entre varios ejercicios
@@ -219,12 +226,29 @@ export const EQUIPMENT_PREFERENCE = {
 } as const satisfies Record<Goal, readonly string[]>;
 
 // ---------- Zonas a cuidar: ejercicios que se evitan (adaptación general) ----------
+// Incluye ejercicios que hoy no entran en el generador (use_in_generator = false):
+// así, si se activan más adelante, ya están cubiertos.
 export const LIMITATION_EXCLUSIONS: Record<
   Limitation,
   { slugs: readonly string[]; patterns: readonly MovementPattern[] }
 > = {
   knees: {
-    slugs: ["sentadilla-con-barra", "extension-de-cuadriceps"],
+    slugs: [
+      "sentadilla-con-barra",
+      "extension-de-cuadriceps",
+      "extension-de-cuadriceps-a-una-pierna",
+      "sentadilla-frontal-con-barra",
+      "sentadilla-hack-en-maquina",
+      "sentadilla-en-multipower",
+      "sentadilla-isometrica-en-pared",
+      "sentadilla-sissy",
+      "sentadilla-a-una-pierna-a-caja",
+      "prensa-de-piernas-a-una-pierna",
+      "thruster-con-mancuernas",
+      "thruster-con-barra",
+      "curl-nordico",
+      "sentadilla-con-salto",
+    ],
     patterns: ["lunge"],
   },
   lower_back: {
@@ -233,6 +257,32 @@ export const LIMITATION_EXCLUSIONS: Record<
       "peso-muerto-rumano-barra",
       "remo-con-barra",
       "sentadilla-con-barra",
+      "peso-muerto-convencional",
+      "peso-muerto-sumo",
+      "peso-muerto-con-barra-hexagonal",
+      "peso-muerto-con-piernas-rigidas",
+      "peso-muerto-a-una-pierna-con-mancuerna",
+      "buenos-dias-con-barra",
+      "hiperextensiones-en-banco-romano",
+      "superman-en-suelo",
+      "sentadilla-frontal-con-barra",
+      "remo-en-t-con-barra",
+      "remo-pendlay",
+      "remo-con-barra-agarre-supino",
+      "remo-con-barra-landmine",
+      "remo-con-mancuernas-inclinado",
+      "remo-con-peso-muerto-y-mancuernas",
+      "swing-con-mancuerna",
+      "swing-a-una-mano-con-mancuerna",
+      "cargada-de-potencia-con-barra",
+      "cargada-colgante-con-barra",
+      "arrancada-con-mancuerna",
+      "cargada-y-press-con-mancuernas",
+      "thruster-con-barra",
+      "elevacion-de-gemelos-con-barra",
+      "rueda-abdominal",
+      "abdominales-en-v",
+      "elevacion-de-piernas-colgado",
     ],
     patterns: [],
   },
@@ -243,12 +293,76 @@ export const LIMITATION_EXCLUSIONS: Record<
       "press-inclinado-mancuernas",
       "fondos-en-banco",
       "dominadas",
+      "dominadas-supinas",
+      "dominadas-agarre-neutro",
+      "dominadas-negativas",
+      "dominadas-asistidas-en-maquina",
+      "fondos-en-paralelas",
+      "fondos-asistidos-en-maquina",
+      "flexion-en-t",
+      "plancha-con-toques-de-hombro",
+      "press-de-banca-agarre-cerrado",
+      "pullover-con-mancuerna",
+      "extension-de-triceps-sobre-la-cabeza-con-mancuerna",
+      "extension-de-triceps-sobre-la-cabeza-en-polea",
+      "push-press-con-mancuernas",
+      "zancada-con-press-de-hombros",
+      "thruster-con-mancuernas",
+      "thruster-con-barra",
+      "man-maker",
+      "arrancada-con-mancuerna",
+      "cargada-y-press-con-mancuernas",
+      "levantamiento-turco",
+      "elevacion-de-piernas-colgado",
+      "elevacion-de-rodillas-colgado",
     ],
     patterns: [],
   },
   wrists: {
-    slugs: ["flexiones", "plancha", "fondos-en-banco", "perro-pajaro"],
+    slugs: [
+      "flexiones",
+      "plancha",
+      "fondos-en-banco",
+      "perro-pajaro",
+      "plancha-lateral",
+      "plancha-con-toques-de-hombro",
+      "plancha-con-flexion",
+      "escaladores",
+      "gusano-inchworm",
+      "flexion-en-t",
+      "flexiones-diamante",
+      "fondos-en-paralelas",
+      "fondos-asistidos-en-maquina",
+      "gateo-del-oso",
+      "rueda-abdominal",
+      "burpee",
+      "burpee-sin-salto",
+      "man-maker",
+      "remo-renegado",
+      "press-de-banca-agarre-cerrado",
+      "press-frances-con-barra-z",
+      "press-frances-con-mancuernas",
+      "patada-de-gluteo-a-cuatro-patas",
+      "curl-de-muneca-con-mancuernas",
+      "curl-de-muneca-inverso",
+      "paseo-del-granjero",
+      "paseo-de-maleta",
+      "levantamiento-turco",
+    ],
     patterns: [],
   },
-  avoid_impact: { slugs: [], patterns: [] },
+  avoid_impact: {
+    slugs: [
+      "sentadilla-con-salto",
+      "burpee",
+      "saltos-de-tijera",
+      "salto-de-patinador",
+      "rodillas-altas",
+      "salto-al-cajon",
+      "zancada-con-salto",
+      "saltos-de-gemelos",
+      "escaladores",
+    ],
+    patterns: [],
+  },
 };
