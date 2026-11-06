@@ -7,6 +7,7 @@ import { cn } from "../../lib/cn";
 const secciones = [
   { href: "/admin", label: "Inicio", exacto: true },
   { href: "/admin/ejercicios", label: "Ejercicios", exacto: false },
+  { href: "/admin/rutinas", label: "Rutinas", exacto: false },
   { href: "/admin/historial", label: "Historial", exacto: false },
 ];
 

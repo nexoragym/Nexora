@@ -1,86 +1,96 @@
 import { describe, expect, it } from "vitest";
-import { CATALOG, esPorTiempo } from "./catalog";
+import {
+  esPorTiempo,
+  mapearRutinaCatalogo,
+  type FilaRutinaCatalogo,
+} from "./catalog";
 
-const SLUGS_BIBLIOTECA = [
-  "press-banca-plano",
-  "press-banca-mancuernas",
-  "flexiones",
-  "press-inclinado-mancuernas",
-  "aperturas-en-maquina",
-  "press-militar-mancuernas",
-  "elevaciones-laterales",
-  "press-hombros-maquina",
-  "jalon-al-pecho",
-  "remo-con-mancuerna",
-  "remo-con-barra",
-  "remo-sentado-en-maquina",
-  "dominadas",
-  "curl-biceps-mancuernas",
-  "extension-de-triceps-en-polea",
-  "fondos-en-banco",
-  "sentadilla-peso-corporal",
-  "sentadilla-goblet",
-  "sentadilla-con-barra",
-  "prensa-de-piernas",
-  "zancadas",
-  "peso-muerto-rumano-mancuernas",
-  "peso-muerto-rumano-barra",
-  "puente-de-gluteos",
-  "extension-de-cuadriceps",
-  "curl-femoral-en-maquina",
-  "elevacion-de-talones",
-  "plancha",
-  "crunch-abdominal",
-  "perro-pajaro",
-];
+function fila(): FilaRutinaCatalogo {
+  return {
+    id: "r1",
+    slug: "prueba",
+    name: "Prueba",
+    description: "Descripción",
+    goal: "muscle",
+    focus: "balanced",
+    level: "beginner",
+    weeks: 8,
+    equipment: ["bodyweight"],
+    notes: null,
+    warnings: null,
+    cover_path: null,
+    is_published: true,
+    sort_order: 10,
+    catalog_routine_days: [
+      {
+        id: "d2",
+        day_number: 2,
+        name: "Segundo",
+        catalog_routine_day_exercises: [],
+      },
+      {
+        id: "d1",
+        day_number: 1,
+        name: "Primero",
+        catalog_routine_day_exercises: [
+          {
+            id: "e2",
+            sort_order: 2,
+            target_sets: 3,
+            reps_min: 8,
+            reps_max: 12,
+            rest_seconds: 90,
+            exercises: [{ id: "x2", slug: "plancha", name: "Plancha", is_active: true }],
+          },
+          {
+            id: "e1",
+            sort_order: 1,
+            target_sets: 3,
+            reps_min: 8,
+            reps_max: 12,
+            rest_seconds: 90,
+            exercises: { id: "x1", slug: "flexiones", name: "Flexiones", is_active: true },
+          },
+          {
+            id: "e3",
+            sort_order: 3,
+            target_sets: 2,
+            reps_min: 10,
+            reps_max: 12,
+            rest_seconds: 60,
+            exercises: null,
+          },
+        ],
+      },
+    ],
+  };
+}
 
-describe("catálogo de rutinas estándar", () => {
-  it("cada rutina tiene un identificador único", () => {
-    const slugs = CATALOG.map((rutina) => rutina.slug);
-    expect(new Set(slugs).size).toBe(slugs.length);
+describe("mapearRutinaCatalogo", () => {
+  it("ordena los días y los ejercicios", () => {
+    const rutina = mapearRutinaCatalogo(fila());
+    expect(rutina.days.map((d) => d.dayNumber)).toEqual([1, 2]);
+    expect(rutina.days[0].exercises.map((e) => e.slug)).toEqual([
+      "flexiones",
+      "plancha",
+    ]);
   });
 
-  for (const rutina of CATALOG) {
-    it(`${rutina.slug} cumple los límites de la base de datos`, () => {
-      expect(rutina.name.length).toBeGreaterThanOrEqual(1);
-      expect(rutina.name.length).toBeLessThanOrEqual(80);
-      expect(rutina.weeks).toBeGreaterThanOrEqual(1);
-      expect(rutina.weeks).toBeLessThanOrEqual(52);
-      expect(rutina.days.length).toBeGreaterThanOrEqual(1);
-      expect(rutina.days.length).toBeLessThanOrEqual(7);
-      expect(rutina.equipment.length).toBeGreaterThanOrEqual(1);
+  it("cuenta los ejercicios que no se pueden ver", () => {
+    expect(mapearRutinaCatalogo(fila()).missing).toBe(1);
+  });
 
-      for (const dia of rutina.days) {
-        expect(dia.name.length).toBeGreaterThanOrEqual(1);
-        expect(dia.name.length).toBeLessThanOrEqual(80);
-        expect(dia.exercises.length).toBeGreaterThanOrEqual(3);
-        expect(dia.exercises.length).toBeLessThanOrEqual(30);
+  it("rellena notas y avisos vacíos", () => {
+    const rutina = mapearRutinaCatalogo(fila());
+    expect(rutina.notes).toEqual([]);
+    expect(rutina.warnings).toEqual([]);
+    expect(rutina.published).toBe(true);
+  });
+});
 
-        const vistos = new Set<string>();
-        for (const ejercicio of dia.exercises) {
-          expect(
-            SLUGS_BIBLIOTECA,
-            `${rutina.slug}: ejercicio desconocido ${ejercicio.slug}`,
-          ).toContain(ejercicio.slug);
-          expect(
-            vistos.has(ejercicio.slug),
-            `${rutina.slug}: ${ejercicio.slug} repetido en un día`,
-          ).toBe(false);
-          vistos.add(ejercicio.slug);
-
-          expect(ejercicio.sets).toBeGreaterThanOrEqual(1);
-          expect(ejercicio.sets).toBeLessThanOrEqual(6);
-          expect(ejercicio.repsMin).toBeGreaterThanOrEqual(1);
-          expect(ejercicio.repsMax).toBeLessThanOrEqual(100);
-          expect(ejercicio.repsMax).toBeGreaterThanOrEqual(ejercicio.repsMin);
-          expect(ejercicio.rest).toBeGreaterThanOrEqual(0);
-          expect(ejercicio.rest).toBeLessThanOrEqual(600);
-
-          if (esPorTiempo(ejercicio.slug)) {
-            expect(ejercicio.repsMin).toBeGreaterThanOrEqual(10);
-          }
-        }
-      }
-    });
-  }
+describe("esPorTiempo", () => {
+  it("reconoce la plancha y no las flexiones", () => {
+    expect(esPorTiempo("plancha")).toBe(true);
+    expect(esPorTiempo("flexiones")).toBe(false);
+  });
 });

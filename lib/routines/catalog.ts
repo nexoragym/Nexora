@@ -1,35 +1,9 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty, Equipment } from "../exercises";
 import type { Focus, Goal } from "../questionnaire";
 import { TIMED_EXERCISE_SLUGS } from "./rules";
 
-export type CatalogExercise = {
-  slug: string;
-  sets: number;
-  repsMin: number;
-  repsMax: number;
-  rest: number;
-};
-
-export type CatalogDay = {
-  name: string;
-  exercises: CatalogExercise[];
-};
-
-export type CatalogRoutine = {
-  slug: string;
-  name: string;
-  description: string;
-  goal: Goal;
-  focus: Focus;
-  level: Difficulty;
-  weeks: number;
-  // Material con el que se puede cambiar un ejercicio por otro
-  equipment: Equipment[];
-  notes: string[];
-  warnings: string[];
-  days: CatalogDay[];
-};
-
+// ---------- Textos que se añaden al usar una rutina ----------
 export const TIMED_NOTE =
   "Las repeticiones son segundos: mantén la posición durante ese tiempo.";
 
@@ -42,351 +16,246 @@ export const CATALOG_GENERAL_WARNINGS: string[] = [
   "Si tienes una lesión o dolor, consulta con un profesional sanitario antes de entrenar. Estas rutinas son generales.",
 ];
 
-const AVISO_BARRA =
-  "Los ejercicios con barra son exigentes: empieza con poco peso y usa topes de seguridad o entrena acompañado.";
-
-const SUPERIOR = "Parte superior (pecho, espalda y brazos)";
-const INFERIOR = "Parte inferior (piernas y glúteos)";
-const COMPLETO = "Cuerpo completo";
-
-// Atajo para escribir un ejercicio: ejercicio(slug, series, rep. mín., rep. máx., descanso en segundos)
-const ej = (
-  slug: string,
-  sets: number,
-  repsMin: number,
-  repsMax: number,
-  rest: number,
-): CatalogExercise => ({ slug, sets, repsMin, repsMax, rest });
-
 export function esPorTiempo(slug: string): boolean {
   return TIMED_EXERCISE_SLUGS.includes(slug);
 }
 
-export const CATALOG: readonly CatalogRoutine[] = [
-  {
-    slug: "masa-muscular-principiante",
-    name: "Masa muscular · Principiante",
-    description:
-      "Tres sesiones de cuerpo completo por semana con máquinas y mancuernas. Ideal para empezar.",
-    goal: "muscle",
-    focus: "balanced",
-    level: "beginner",
-    weeks: 8,
-    equipment: ["machines", "dumbbells", "bodyweight"],
-    notes: [
-      "Tres sesiones de cuerpo completo por semana, con un día de descanso entre ellas.",
-      "Cuando completes todas las series en el máximo de repeticiones y con buena técnica, sube un poco el peso la semana siguiente.",
-    ],
-    warnings: [],
-    days: [
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("press-banca-mancuernas", 3, 8, 12, 90),
-          ej("jalon-al-pecho", 3, 8, 12, 90),
-          ej("prensa-de-piernas", 3, 10, 12, 90),
-          ej("elevaciones-laterales", 2, 12, 15, 60),
-          ej("curl-biceps-mancuernas", 2, 12, 15, 60),
-          ej("plancha", 2, 20, 40, 45),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("press-hombros-maquina", 3, 8, 12, 90),
-          ej("remo-sentado-en-maquina", 3, 8, 12, 90),
-          ej("sentadilla-goblet", 3, 8, 12, 90),
-          ej("peso-muerto-rumano-mancuernas", 3, 8, 12, 90),
-          ej("extension-de-triceps-en-polea", 2, 12, 15, 60),
-          ej("crunch-abdominal", 2, 12, 15, 45),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("flexiones", 3, 8, 12, 90),
-          ej("remo-con-mancuerna", 3, 8, 12, 90),
-          ej("prensa-de-piernas", 3, 10, 12, 90),
-          ej("curl-femoral-en-maquina", 2, 12, 15, 60),
-          ej("aperturas-en-maquina", 2, 12, 15, 60),
-          ej("perro-pajaro", 2, 10, 12, 45),
-        ],
-      },
-    ],
-  },
-  {
-    slug: "masa-muscular-intermedio",
-    name: "Masa muscular · Intermedio",
-    description:
-      "Cuatro sesiones por semana alternando parte superior e inferior, con barra, mancuernas y máquinas.",
-    goal: "muscle",
-    focus: "balanced",
-    level: "intermediate",
-    weeks: 8,
-    equipment: ["barbell", "dumbbells", "machines", "bodyweight"],
-    notes: [
-      "Alternas parte superior e inferior: dos sesiones de cada una por semana.",
-      "Cuando completes todas las series en el máximo de repeticiones y con buena técnica, sube un poco el peso la semana siguiente.",
-    ],
-    warnings: [AVISO_BARRA],
-    days: [
-      {
-        name: SUPERIOR,
-        exercises: [
-          ej("press-banca-plano", 4, 8, 12, 90),
-          ej("remo-con-barra", 4, 8, 12, 90),
-          ej("press-militar-mancuernas", 3, 8, 12, 90),
-          ej("jalon-al-pecho", 3, 10, 12, 75),
-          ej("curl-biceps-mancuernas", 3, 10, 15, 60),
-          ej("extension-de-triceps-en-polea", 3, 10, 15, 60),
-        ],
-      },
-      {
-        name: INFERIOR,
-        exercises: [
-          ej("prensa-de-piernas", 4, 8, 12, 90),
-          ej("peso-muerto-rumano-barra", 4, 8, 12, 90),
-          ej("zancadas", 3, 10, 12, 75),
-          ej("curl-femoral-en-maquina", 3, 10, 15, 60),
-          ej("elevacion-de-talones", 3, 12, 15, 45),
-          ej("plancha", 3, 20, 40, 45),
-        ],
-      },
-      {
-        name: SUPERIOR,
-        exercises: [
-          ej("press-inclinado-mancuernas", 4, 8, 12, 90),
-          ej("remo-con-mancuerna", 4, 8, 12, 90),
-          ej("press-hombros-maquina", 3, 8, 12, 90),
-          ej("remo-sentado-en-maquina", 3, 10, 12, 75),
-          ej("elevaciones-laterales", 3, 12, 15, 60),
-          ej("aperturas-en-maquina", 3, 12, 15, 60),
-        ],
-      },
-      {
-        name: INFERIOR,
-        exercises: [
-          ej("sentadilla-goblet", 4, 8, 12, 90),
-          ej("peso-muerto-rumano-mancuernas", 4, 8, 12, 90),
-          ej("puente-de-gluteos", 3, 12, 15, 60),
-          ej("extension-de-cuadriceps", 3, 10, 15, 60),
-          ej("elevacion-de-talones", 3, 12, 15, 45),
-          ej("crunch-abdominal", 3, 10, 15, 45),
-        ],
-      },
-    ],
-  },
-  {
-    slug: "definir-gimnasio",
-    name: "Definir y perder grasa · Gimnasio",
-    description:
-      "Tres sesiones de cuerpo completo con más repeticiones y descansos cortos, con máquinas y mancuernas.",
-    goal: "definition",
-    focus: "balanced",
-    level: "beginner",
-    weeks: 8,
-    equipment: ["machines", "dumbbells", "bodyweight"],
-    notes: [
-      "Más repeticiones y descansos cortos para mantener el ritmo alto.",
-      "No se puede perder grasa de una sola zona: el cuerpo la reduce en conjunto.",
-      "Para definir, el entrenamiento ayuda, pero la alimentación tiene un peso enorme en el resultado.",
-    ],
-    warnings: [],
-    days: [
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("prensa-de-piernas", 3, 12, 15, 45),
-          ej("press-banca-mancuernas", 3, 12, 15, 45),
-          ej("jalon-al-pecho", 3, 12, 15, 45),
-          ej("elevaciones-laterales", 2, 12, 15, 30),
-          ej("crunch-abdominal", 2, 15, 20, 30),
-          ej("plancha", 2, 20, 40, 30),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("sentadilla-goblet", 3, 12, 15, 45),
-          ej("press-hombros-maquina", 3, 12, 15, 45),
-          ej("remo-sentado-en-maquina", 3, 12, 15, 45),
-          ej("peso-muerto-rumano-mancuernas", 3, 12, 15, 45),
-          ej("curl-biceps-mancuernas", 2, 12, 15, 30),
-          ej("perro-pajaro", 2, 10, 12, 30),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("zancadas", 3, 12, 15, 45),
-          ej("flexiones", 3, 10, 15, 45),
-          ej("remo-con-mancuerna", 3, 12, 15, 45),
-          ej("curl-femoral-en-maquina", 2, 12, 15, 30),
-          ej("extension-de-triceps-en-polea", 2, 12, 15, 30),
-          ej("plancha", 2, 20, 40, 30),
-        ],
-      },
-    ],
-  },
-  {
-    slug: "definir-en-casa",
-    name: "Definir y perder grasa · En casa",
-    description:
-      "Tres sesiones de cuerpo completo solo con tu peso corporal y un banco o silla. No necesitas gimnasio.",
-    goal: "definition",
-    focus: "balanced",
-    level: "beginner",
-    weeks: 8,
-    equipment: ["bodyweight"],
-    notes: [
-      "Solo con peso corporal: sin material no hay ejercicios de espalda. Si tienes mancuernas o acceso a un gimnasio, la rutina de gimnasio es más completa.",
-      "No se puede perder grasa de una sola zona: el cuerpo la reduce en conjunto.",
-      "Para definir, el entrenamiento ayuda, pero la alimentación tiene un peso enorme en el resultado.",
-    ],
-    warnings: [],
-    days: [
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("sentadilla-peso-corporal", 3, 15, 20, 45),
-          ej("flexiones", 3, 10, 15, 45),
-          ej("puente-de-gluteos", 3, 15, 20, 30),
-          ej("fondos-en-banco", 2, 10, 15, 45),
-          ej("crunch-abdominal", 3, 15, 20, 30),
-          ej("plancha", 3, 20, 40, 30),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("zancadas", 3, 10, 12, 45),
-          ej("flexiones", 3, 10, 15, 45),
-          ej("elevacion-de-talones", 3, 15, 20, 30),
-          ej("perro-pajaro", 2, 10, 12, 30),
-          ej("crunch-abdominal", 3, 15, 20, 30),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("sentadilla-peso-corporal", 3, 15, 20, 45),
-          ej("fondos-en-banco", 3, 10, 15, 45),
-          ej("puente-de-gluteos", 3, 15, 20, 30),
-          ej("flexiones", 2, 10, 15, 45),
-          ej("plancha", 3, 20, 40, 30),
-          ej("perro-pajaro", 2, 10, 12, 30),
-        ],
-      },
-    ],
-  },
-  {
-    slug: "fuerza-intermedio",
-    name: "Fuerza · Intermedio",
-    description:
-      "Cuatro sesiones por semana con pocas repeticiones y descansos largos para levantar cada vez más peso.",
-    goal: "strength",
-    focus: "balanced",
-    level: "intermediate",
-    weeks: 8,
-    equipment: ["barbell", "dumbbells", "machines", "bodyweight"],
-    notes: [
-      "Pocas repeticiones con mucho peso y descansos largos: descansa lo necesario entre series.",
-      "Cuando completes todas las series en el máximo de repeticiones y con buena técnica, sube un poco el peso la semana siguiente.",
-    ],
-    warnings: [AVISO_BARRA],
-    days: [
-      {
-        name: SUPERIOR,
-        exercises: [
-          ej("press-banca-plano", 4, 4, 6, 150),
-          ej("remo-con-barra", 4, 4, 6, 150),
-          ej("press-militar-mancuernas", 3, 6, 8, 120),
-          ej("jalon-al-pecho", 3, 8, 10, 90),
-          ej("extension-de-triceps-en-polea", 3, 8, 12, 75),
-        ],
-      },
-      {
-        name: INFERIOR,
-        exercises: [
-          ej("prensa-de-piernas", 4, 5, 8, 150),
-          ej("peso-muerto-rumano-barra", 4, 4, 6, 150),
-          ej("zancadas", 3, 8, 10, 90),
-          ej("curl-femoral-en-maquina", 3, 8, 12, 75),
-          ej("plancha", 3, 20, 40, 60),
-        ],
-      },
-      {
-        name: SUPERIOR,
-        exercises: [
-          ej("press-inclinado-mancuernas", 4, 6, 8, 120),
-          ej("remo-con-mancuerna", 4, 6, 8, 120),
-          ej("press-hombros-maquina", 3, 6, 8, 120),
-          ej("remo-sentado-en-maquina", 3, 8, 10, 90),
-          ej("curl-biceps-mancuernas", 3, 8, 12, 75),
-        ],
-      },
-      {
-        name: INFERIOR,
-        exercises: [
-          ej("sentadilla-goblet", 4, 6, 10, 120),
-          ej("peso-muerto-rumano-mancuernas", 4, 6, 8, 120),
-          ej("extension-de-cuadriceps", 3, 8, 12, 75),
-          ej("elevacion-de-talones", 3, 10, 12, 60),
-          ej("crunch-abdominal", 3, 8, 12, 60),
-        ],
-      },
-    ],
-  },
-  {
-    slug: "condicion-fisica-principiante",
-    name: "Condición física · Principiante",
-    description:
-      "Un mes de tres sesiones suaves de cuerpo completo para ponerte en marcha y coger el hábito.",
-    goal: "general_fitness",
-    focus: "balanced",
-    level: "beginner",
-    weeks: 4,
-    equipment: ["machines", "dumbbells", "bodyweight"],
-    notes: [
-      "Tres sesiones suaves por semana: lo importante es crear el hábito.",
-      "Si te sobra energía al terminar las series, sube un poco el peso la semana siguiente.",
-    ],
-    warnings: [],
-    days: [
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("sentadilla-peso-corporal", 2, 10, 15, 60),
-          ej("flexiones", 2, 10, 15, 60),
-          ej("remo-sentado-en-maquina", 2, 10, 15, 60),
-          ej("puente-de-gluteos", 2, 12, 15, 45),
-          ej("plancha", 2, 20, 40, 45),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("prensa-de-piernas", 2, 10, 15, 60),
-          ej("press-banca-mancuernas", 2, 10, 15, 60),
-          ej("jalon-al-pecho", 2, 10, 15, 60),
-          ej("elevaciones-laterales", 2, 12, 15, 45),
-          ej("perro-pajaro", 2, 10, 12, 45),
-        ],
-      },
-      {
-        name: COMPLETO,
-        exercises: [
-          ej("sentadilla-goblet", 2, 10, 15, 60),
-          ej("press-hombros-maquina", 2, 10, 15, 60),
-          ej("remo-con-mancuerna", 2, 10, 15, 60),
-          ej("zancadas", 2, 10, 12, 60),
-          ej("crunch-abdominal", 2, 10, 15, 45),
-        ],
-      },
-    ],
-  },
-];
+// ---------- Tipos ----------
+export type CatalogExercise = {
+  id: string;
+  exerciseId: string;
+  slug: string;
+  name: string;
+  active: boolean;
+  sortOrder: number;
+  sets: number;
+  repsMin: number;
+  repsMax: number;
+  rest: number;
+};
 
-export function buscarRutinaCatalogo(slug: string): CatalogRoutine | null {
-  return CATALOG.find((rutina) => rutina.slug === slug) ?? null;
+export type CatalogDay = {
+  id: string;
+  dayNumber: number;
+  name: string;
+  exercises: CatalogExercise[];
+};
+
+export type CatalogRoutine = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  goal: Goal;
+  focus: Focus;
+  level: Difficulty;
+  weeks: number;
+  equipment: Equipment[];
+  notes: string[];
+  warnings: string[];
+  coverPath: string | null;
+  published: boolean;
+  sortOrder: number;
+  days: CatalogDay[];
+  // Ejercicios que no se pueden ver (por ejemplo, porque se han desactivado).
+  missing: number;
+};
+
+export type CatalogResumen = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  goal: Goal;
+  level: Difficulty;
+  weeks: number;
+  coverPath: string | null;
+  published: boolean;
+  sortOrder: number;
+  daysCount: number;
+};
+
+// ---------- Consultas ----------
+const LISTA_SELECT =
+  "id, slug, name, description, goal, level, weeks, cover_path, is_published, sort_order, " +
+  "catalog_routine_days(id)";
+
+export const CATALOG_SELECT =
+  "id, slug, name, description, goal, focus, level, weeks, equipment, notes, warnings, " +
+  "cover_path, is_published, sort_order, " +
+  "catalog_routine_days(id, day_number, name, " +
+  "catalog_routine_day_exercises(id, sort_order, target_sets, reps_min, reps_max, rest_seconds, " +
+  "exercises(id, slug, name, is_active)))";
+
+type FilaEjercicioRef = {
+  id: string;
+  slug: string;
+  name: string;
+  is_active: boolean;
+};
+
+type FilaDiaEjercicio = {
+  id: string;
+  sort_order: number;
+  target_sets: number;
+  reps_min: number;
+  reps_max: number;
+  rest_seconds: number;
+  exercises: FilaEjercicioRef | FilaEjercicioRef[] | null;
+};
+
+type FilaDia = {
+  id: string;
+  day_number: number;
+  name: string;
+  catalog_routine_day_exercises: FilaDiaEjercicio[] | null;
+};
+
+export type FilaRutinaCatalogo = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  goal: Goal;
+  focus: Focus;
+  level: Difficulty;
+  weeks: number;
+  equipment: Equipment[];
+  notes: string[] | null;
+  warnings: string[] | null;
+  cover_path: string | null;
+  is_published: boolean;
+  sort_order: number;
+  catalog_routine_days: FilaDia[] | null;
+};
+
+type FilaResumen = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  goal: Goal;
+  level: Difficulty;
+  weeks: number;
+  cover_path: string | null;
+  is_published: boolean;
+  sort_order: number;
+  catalog_routine_days: { id: string }[] | null;
+};
+
+function uno<T>(valor: T | T[] | null): T | null {
+  return Array.isArray(valor) ? (valor[0] ?? null) : valor;
+}
+
+// Convierte lo que devuelve Supabase en una rutina ordenada y fácil de usar.
+export function mapearRutinaCatalogo(fila: FilaRutinaCatalogo): CatalogRoutine {
+  let missing = 0;
+
+  const days: CatalogDay[] = [...(fila.catalog_routine_days ?? [])]
+    .sort((a, b) => a.day_number - b.day_number)
+    .map((dia) => {
+      const exercises: CatalogExercise[] = [];
+      const filas = [...(dia.catalog_routine_day_exercises ?? [])].sort(
+        (a, b) => a.sort_order - b.sort_order,
+      );
+      for (const f of filas) {
+        const ejercicio = uno(f.exercises);
+        if (!ejercicio) {
+          missing += 1;
+          continue;
+        }
+        exercises.push({
+          id: f.id,
+          exerciseId: ejercicio.id,
+          slug: ejercicio.slug,
+          name: ejercicio.name,
+          active: ejercicio.is_active,
+          sortOrder: f.sort_order,
+          sets: f.target_sets,
+          repsMin: f.reps_min,
+          repsMax: f.reps_max,
+          rest: f.rest_seconds,
+        });
+      }
+      return { id: dia.id, dayNumber: dia.day_number, name: dia.name, exercises };
+    });
+
+  return {
+    id: fila.id,
+    slug: fila.slug,
+    name: fila.name,
+    description: fila.description,
+    goal: fila.goal,
+    focus: fila.focus,
+    level: fila.level,
+    weeks: fila.weeks,
+    equipment: fila.equipment,
+    notes: fila.notes ?? [],
+    warnings: fila.warnings ?? [],
+    coverPath: fila.cover_path,
+    published: fila.is_published,
+    sortOrder: fila.sort_order,
+    days,
+    missing,
+  };
+}
+
+// Lista de rutinas (sin sus ejercicios). Los usuarios solo ven las publicadas.
+export async function listarRutinasCatalogo(
+  supabase: SupabaseClient,
+  opciones: { soloPublicadas: boolean },
+): Promise<{ rutinas: CatalogResumen[]; error: boolean }> {
+  let consulta = supabase
+    .from("catalog_routines")
+    .select(LISTA_SELECT)
+    .order("sort_order")
+    .order("name");
+  if (opciones.soloPublicadas) consulta = consulta.eq("is_published", true);
+
+  const { data, error } = await consulta;
+  if (error) {
+    console.error("[catálogo] error al listar:", error.code ?? "sin código");
+    return { rutinas: [], error: true };
+  }
+
+  const filas = (data ?? []) as unknown as FilaResumen[];
+  return {
+    error: false,
+    rutinas: filas.map((fila) => ({
+      id: fila.id,
+      slug: fila.slug,
+      name: fila.name,
+      description: fila.description,
+      goal: fila.goal,
+      level: fila.level,
+      weeks: fila.weeks,
+      coverPath: fila.cover_path,
+      published: fila.is_published,
+      sortOrder: fila.sort_order,
+      daysCount: (fila.catalog_routine_days ?? []).length,
+    })),
+  };
+}
+
+// Una rutina completa, por identificador (slug) o por id.
+export async function leerRutinaCatalogo(
+  supabase: SupabaseClient,
+  filtro: { slug: string } | { id: string },
+): Promise<{ rutina: CatalogRoutine | null; error: boolean }> {
+  const base = supabase.from("catalog_routines").select(CATALOG_SELECT);
+  const { data, error } = await ("slug" in filtro
+    ? base.eq("slug", filtro.slug)
+    : base.eq("id", filtro.id)
+  ).maybeSingle();
+
+  if (error) {
+    console.error("[catálogo] error al leer:", error.code ?? "sin código");
+    return { rutina: null, error: true };
+  }
+  if (!data) return { rutina: null, error: false };
+
+  return {
+    rutina: mapearRutinaCatalogo(data as unknown as FilaRutinaCatalogo),
+    error: false,
+  };
 }

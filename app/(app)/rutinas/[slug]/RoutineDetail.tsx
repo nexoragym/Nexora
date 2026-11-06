@@ -10,8 +10,8 @@ import {
 } from "../../../../lib/exercises";
 import { GOAL_LABELS } from "../../../../lib/questionnaire";
 import {
-  buscarRutinaCatalogo,
   esPorTiempo,
+  leerRutinaCatalogo,
 } from "../../../../lib/routines/catalog";
 import { createClient } from "../../../../lib/supabase/server";
 import { UseRoutineButton } from "./UseRoutineButton";
@@ -24,36 +24,20 @@ export async function RoutineDetail({ params }: RoutineDetailProps) {
   await connection();
 
   const { slug } = await params;
-  const rutina = buscarRutinaCatalogo(slug);
-  if (!rutina) {
-    notFound();
-  }
-
   const supabase = await createClient();
 
-  const slugs = Array.from(
-    new Set(rutina.days.flatMap((dia) => dia.exercises.map((e) => e.slug))),
-  );
-
-  const { data: filas, error } = await supabase
-    .from("exercises")
-    .select("slug, name")
-    .in("slug", slugs);
-
+  // Si la rutina está oculta, solo la ve el superadmin; para el resto no existe.
+  const { rutina, error } = await leerRutinaCatalogo(supabase, { slug });
   if (error) {
-    console.error("[rutina] error al leer ejercicios:", error.code ?? "sin código");
     return (
       <Alert tone="danger" title="No se pudo cargar la rutina">
         Inténtalo de nuevo en unos instantes.
       </Alert>
     );
   }
-
-  const nombres = new Map(
-    ((filas ?? []) as { slug: string; name: string }[]).map(
-      (fila) => [fila.slug, fila.name] as const,
-    ),
-  );
+  if (!rutina) {
+    notFound();
+  }
 
   const { data: activa } = await supabase
     .from("routines")
@@ -72,6 +56,7 @@ export async function RoutineDetail({ params }: RoutineDetailProps) {
           ← Volver a Rutinas
         </Link>
         <div className="flex flex-wrap items-center gap-2">
+          {rutina.published ? null : <Badge tone="warning">Oculta</Badge>}
           <Badge>{GOAL_LABELS[rutina.goal]}</Badge>
           <Badge>{DIFFICULTY_LABELS[rutina.level]}</Badge>
           <Badge>{rutina.weeks} semanas</Badge>
@@ -82,6 +67,17 @@ export async function RoutineDetail({ params }: RoutineDetailProps) {
         </div>
         <h1 className="text-3xl font-semibold tracking-tight">{rutina.name}</h1>
         <p className="max-w-3xl text-lg text-muted">{rutina.description}</p>
+        {rutina.published ? null : (
+          <Alert tone="info" title="Esta rutina está oculta">
+            Solo la ves tú, como superadmin. Los usuarios no la encuentran.
+          </Alert>
+        )}
+        {rutina.missing > 0 ? (
+          <Alert tone="warning" title="Falta algún ejercicio">
+            Algún ejercicio de esta rutina está desactivado o no existe.
+            Los usuarios no podrán usarla hasta que lo arregles.
+          </Alert>
+        ) : null}
         {rutina.warnings.length > 0 ? (
           <Alert tone="warning" title="Ten en cuenta">
             <ul className="flex list-disc flex-col gap-1 pl-5">
@@ -94,19 +90,19 @@ export async function RoutineDetail({ params }: RoutineDetailProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {rutina.days.map((dia, indice) => (
-          <Card key={indice} className="flex flex-col gap-4">
+        {rutina.days.map((dia) => (
+          <Card key={dia.id} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <h2 className="text-2xl font-semibold tracking-tight">
-                Día {indice + 1}
+                Día {dia.dayNumber}
               </h2>
               <p className="text-sm text-muted">{dia.name}</p>
             </div>
             <ol className="flex flex-col gap-3">
               {dia.exercises.map((e, j) => (
-                <li key={e.slug} className="flex flex-col">
+                <li key={e.id} className="flex flex-col">
                   <span className="font-medium">
-                    {j + 1}. {nombres.get(e.slug) ?? e.slug}
+                    {j + 1}. {e.name}
                   </span>
                   <span className="text-sm text-muted">
                     {e.sets} series · {e.repsMin}-{e.repsMax}{" "}

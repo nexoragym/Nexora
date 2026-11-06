@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import {
-  buscarRutinaCatalogo,
   CATALOG_GENERAL_NOTES,
   CATALOG_GENERAL_WARNINGS,
   esPorTiempo,
+  leerRutinaCatalogo,
   TIMED_NOTE,
 } from "../../../../lib/routines/catalog";
 import { createClient } from "../../../../lib/supabase/server";
@@ -14,14 +14,13 @@ const ERROR_GENERICO = "No se pudo guardar la rutina. Inténtalo de nuevo.";
 const ERROR_DATOS =
   "La rutina no es válida. Recarga la página e inténtalo de nuevo.";
 
-// Guarda una rutina del catálogo como tu rutina activa.
+// Guarda una rutina del catálogo como tu rutina activa (se copia a tu cuenta).
 export async function usarRutinaCatalogo(
   slug: unknown,
 ): Promise<{ ok: boolean; error?: string; firstDayId?: string }> {
-  if (typeof slug !== "string") return { ok: false, error: ERROR_DATOS };
-
-  const rutina = buscarRutinaCatalogo(slug);
-  if (!rutina) return { ok: false, error: ERROR_DATOS };
+  if (typeof slug !== "string" || slug.length === 0 || slug.length > 60) {
+    return { ok: false, error: ERROR_DATOS };
+  }
 
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
@@ -29,34 +28,14 @@ export async function usarRutinaCatalogo(
     return { ok: false, error: "Tu sesión ha caducado. Vuelve a iniciar sesión." };
   }
 
-  const slugs = Array.from(
-    new Set(rutina.days.flatMap((dia) => dia.exercises.map((e) => e.slug))),
-  );
+  const { rutina, error } = await leerRutinaCatalogo(supabase, { slug });
+  if (error) return { ok: false, error: ERROR_GENERICO };
+  if (!rutina || !rutina.published) return { ok: false, error: ERROR_DATOS };
 
-  const { data: filas, error: errorLectura } = await supabase
-    .from("exercises")
-    .select("id, slug")
-    .eq("is_active", true)
-    .in("slug", slugs);
-
-  if (errorLectura) {
-    console.error(
-      "[rutina estándar] error al leer ejercicios:",
-      errorLectura.code ?? "sin código",
-    );
-    return { ok: false, error: ERROR_GENERICO };
-  }
-
-  const ids = new Map(
-    ((filas ?? []) as { id: string; slug: string }[]).map(
-      (fila) => [fila.slug, fila.id] as const,
-    ),
-  );
-
-  if (slugs.some((s) => !ids.has(s))) {
+  if (rutina.missing > 0 || rutina.days.length === 0) {
     return {
       ok: false,
-      error: "Falta algún ejercicio de esta rutina en la biblioteca.",
+      error: "Esta rutina no está disponible ahora mismo. Prueba con otra.",
     };
   }
 
@@ -74,7 +53,7 @@ export async function usarRutinaCatalogo(
       day_number: i + 1,
       name: dia.name,
       exercises: dia.exercises.map((e, j) => ({
-        exercise_id: ids.get(e.slug),
+        exercise_id: e.exerciseId,
         sort_order: j + 1,
         target_sets: e.sets,
         reps_min: e.repsMin,

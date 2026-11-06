@@ -3,7 +3,6 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
-import { Badge } from "../../../components/ui/Badge";
 import { Card } from "../../../components/ui/Card";
 import { StatCard } from "../../../components/ui/StatCard";
 import {
@@ -108,6 +107,15 @@ async function AdminInicio() {
             </span>
           </Link>
           <Link
+            href="/admin/rutinas"
+            className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
+          >
+            <span className="text-lg font-semibold">Rutinas estándar</span>
+            <span className="text-sm text-muted">
+              Publica, oculta y duplica las rutinas del catálogo.
+            </span>
+          </Link>
+          <Link
             href="/admin/historial"
             className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
           >
@@ -116,15 +124,6 @@ async function AdminInicio() {
               Quién cambió qué y cuándo.
             </span>
           </Link>
-          <Card className="flex flex-col gap-2 opacity-70">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-lg font-semibold">Rutinas estándar</span>
-              <Badge>Fase B</Badge>
-            </div>
-            <span className="text-sm text-muted">
-              Editar las rutinas del catálogo desde el panel.
-            </span>
-          </Card>
         </div>
       </section>
 
