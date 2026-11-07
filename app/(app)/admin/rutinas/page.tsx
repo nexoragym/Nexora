@@ -6,6 +6,7 @@ import { PageContainer, PageHeader } from "../../../../components/layout/Page";
 import { Alert } from "../../../../components/ui/Alert";
 import { Badge } from "../../../../components/ui/Badge";
 import { Button } from "../../../../components/ui/Button";
+import { ButtonLink } from "../../../../components/ui/ButtonLink";
 import { exigirSuperadmin } from "../../../../lib/admin/guard";
 import { DIFFICULTY_LABELS } from "../../../../lib/exercises";
 import { GOAL_LABELS } from "../../../../lib/questionnaire";
@@ -59,7 +60,8 @@ async function ListaRutinas({ searchParams }: { searchParams: SearchParams }) {
 
       {rutinas.length === 0 ? (
         <Alert tone="info" title="Todavía no hay rutinas">
-          Ejecuta la migración 0016 para cargar las 6 rutinas estándar.
+          Crea una con «Nueva rutina», genera borradores o ejecuta la migración
+          0016 para cargar las 6 rutinas estándar.
         </Alert>
       ) : (
         <section aria-label="Rutinas" className="flex flex-col gap-3">
@@ -109,10 +111,10 @@ async function ListaRutinas({ searchParams }: { searchParams: SearchParams }) {
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-end gap-2">
                         <Link
-                          href={`/rutinas/${rutina.slug}`}
+                          href={`/admin/rutinas/${rutina.id}`}
                           className="font-semibold text-accent hover:underline"
                         >
-                          Ver
+                          Editar
                         </Link>
                         <form action={cambiarPublicacion}>
                           <input type="hidden" name="id" value={rutina.id} />
@@ -151,10 +153,20 @@ export default function AdminRutinasPage({
 }) {
   return (
     <PageContainer>
-      <PageHeader
-        title="Rutinas"
-        description="Las rutinas estándar que ven los usuarios en Rutinas."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <PageHeader
+          title="Rutinas"
+          description="Las rutinas estándar que ven los usuarios en Rutinas."
+        />
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink href="/admin/rutinas/generar" variant="secondary" size="lg">
+            Generar borradores
+          </ButtonLink>
+          <ButtonLink href="/admin/rutinas/nueva" size="lg">
+            Nueva rutina
+          </ButtonLink>
+        </div>
+      </div>
       <Suspense
         fallback={<div className="h-96 animate-pulse rounded-3xl bg-surface-2" />}
       >

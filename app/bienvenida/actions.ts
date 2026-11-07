@@ -4,10 +4,8 @@ import {
   validarRespuestas,
   type OnboardingDraft,
 } from "../../lib/questionnaire";
-import {
-  generateRoutine,
-  type GeneratorExercise,
-} from "../../lib/routines/generator";
+import { leerBibliotecaGenerador } from "../../lib/routines/biblioteca";
+import { generateRoutine } from "../../lib/routines/generator";
 import { rutinaAPayload } from "../../lib/routines/payload";
 import { createClient } from "../../lib/supabase/server";
 
@@ -100,20 +98,15 @@ export async function crearPlanInicial(
   }
 
   // El generador solo ve los ejercicios activos y marcados para rutinas automáticas.
-  const { data: ejercicios, error: errorEjercicios } = await supabase
-    .from("exercises")
-    .select(
-      "id, slug, name, primary_muscles, equipment, movement_pattern, difficulty, popularity",
-    )
-    .eq("is_active", true)
-    .eq("use_in_generator", true);
+  // Se leen por páginas: Supabase corta cada consulta en 1.000 filas.
+  const { ejercicios, error: errorEjercicios } =
+    await leerBibliotecaGenerador(supabase);
 
   if (errorEjercicios) {
-    console.error("[plan] error al leer ejercicios:", errorEjercicios.code ?? "sin código");
     return { ok: false, error: ERROR_GENERICO };
   }
 
-  const rutina = generateRoutine(values, (ejercicios ?? []) as GeneratorExercise[]);
+  const rutina = generateRoutine(values, ejercicios);
 
   if (rutina.days.every((dia) => dia.exercises.length === 0)) {
     return {

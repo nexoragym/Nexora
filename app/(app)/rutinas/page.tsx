@@ -5,6 +5,8 @@ import { RutinasContent } from "./RutinasContent";
 
 export const metadata: Metadata = { title: "Rutinas" };
 
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
 // Lo que se ve mientras se carga el catálogo.
 function RutinasCargando() {
   return (
@@ -23,15 +25,19 @@ function RutinasCargando() {
   );
 }
 
-export default function RutinasPage() {
+export default function RutinasPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   return (
     <PageContainer>
       <PageHeader
         title="Rutinas"
-        description="Rutinas listas para usar. Elige una, cámbiale algún ejercicio si quieres y empieza."
+        description="Rutinas listas para usar. Busca la tuya, elige una y empieza."
       />
       <Suspense fallback={<RutinasCargando />}>
-        <RutinasContent />
+        <RutinasContent searchParams={searchParams} />
       </Suspense>
     </PageContainer>
   );
