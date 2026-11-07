@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
-import type { Equipment } from "../exercises";
+import type { Difficulty, Equipment } from "../exercises";
 import type { Limitation, QuestionnaireValues } from "../questionnaire";
 import {
   estimateDayMinutes,
   generateRoutine,
   type GeneratedRoutine,
 } from "./generator";
-import { LIMITATION_EXCLUSIONS } from "./rules";
+import {
+  DAY_KIND_LABELS,
+  DIFFICULTY_RANK,
+  LIMITATION_EXCLUSIONS,
+  type DayKind,
+} from "./rules";
+import { SPLIT_VARIANTS } from "./splits";
 import { TEST_LIBRARY } from "./test-library";
 
 const NIVEL = { beginner: 1, intermediate: 2, advanced: 3 } as const;
@@ -30,6 +36,30 @@ function generar(
 
 function todosLosEjercicios(rutina: GeneratedRoutine) {
   return rutina.days.flatMap((dia) => dia.exercises);
+}
+
+// Nombres que da el generador a los días de una estructura (con A, B, C si se repiten).
+function nombresDeEstructura(tipos: readonly DayKind[]): string[] {
+  const totales = new Map<DayKind, number>();
+  for (const tipo of tipos) {
+    totales.set(tipo, (totales.get(tipo) ?? 0) + 1);
+  }
+  const vistos = new Map<DayKind, number>();
+  return tipos.map((tipo) => {
+    const ordinal = vistos.get(tipo) ?? 0;
+    vistos.set(tipo, ordinal + 1);
+    const etiqueta = DAY_KIND_LABELS[tipo];
+    return (totales.get(tipo) ?? 1) > 1
+      ? `${etiqueta} ${String.fromCharCode(65 + ordinal)}`
+      : etiqueta;
+  });
+}
+
+// Todas las estructuras de semana que puede recibir una persona de ese nivel.
+function estructurasValidas(sesiones: number, nivel: Difficulty): string[][] {
+  return (SPLIT_VARIANTS[sesiones] ?? [])
+    .filter((variante) => DIFFICULTY_RANK[variante.minLevel] <= DIFFICULTY_RANK[nivel])
+    .map((variante) => nombresDeEstructura(variante.kinds));
 }
 
 // Reglas que debe cumplir CUALQUIER rutina generada.
@@ -106,13 +136,12 @@ function comprobarRutina(
 }
 
 describe("distribución de las sesiones", () => {
-  it("3 días: cuerpo completo A, B y C", () => {
-    const rutina = generar({ days: 3 });
-    expect(rutina.days.map((d) => d.name)).toEqual([
-      "Cuerpo completo A",
-      "Cuerpo completo B",
-      "Cuerpo completo C",
-    ]);
+  // La estructura de la semana puede variar según las respuestas, pero siempre
+  // debe ser una de las permitidas para ese número de días y ese nivel.
+  it("3 días (principiante): una de las estructuras válidas, sin empuje-tirón-piernas", () => {
+    const nombres = generar({ days: 3 }).days.map((d) => d.name);
+    expect(estructurasValidas(3, "beginner")).toContainEqual(nombres);
+    expect(nombres).not.toContain("Empuje");
   });
 
   it("1 día: una sola sesión de cuerpo completo", () => {
@@ -120,8 +149,15 @@ describe("distribución de las sesiones", () => {
     expect(rutina.days.map((d) => d.name)).toEqual(["Cuerpo completo"]);
   });
 
-  it("4 días: tren superior e inferior alternados", () => {
+  it("4 días (intermedio): una de las estructuras válidas", () => {
     const rutina = generar({ experience: "intermediate", days: 4 });
+    expect(estructurasValidas(4, "intermediate")).toContainEqual(
+      rutina.days.map((d) => d.name),
+    );
+  });
+
+  it("4 días (principiante): tren superior e inferior alternados", () => {
+    const rutina = generar({ experience: "beginner", days: 4 });
     expect(rutina.days.map((d) => d.name)).toEqual([
       "Tren superior A",
       "Tren inferior A",
@@ -130,27 +166,19 @@ describe("distribución de las sesiones", () => {
     ]);
   });
 
-  it("5 días (intermedio): empuje, tirón, piernas, superior e inferior", () => {
+  it("5 días (intermedio): una de las estructuras válidas", () => {
     const rutina = generar({ experience: "intermediate", days: 5 });
-    expect(rutina.days.map((d) => d.name)).toEqual([
-      "Empuje",
-      "Tirón",
-      "Piernas",
-      "Tren superior",
-      "Tren inferior",
-    ]);
+    expect(estructurasValidas(5, "intermediate")).toContainEqual(
+      rutina.days.map((d) => d.name),
+    );
   });
 
-  it("7 días (avanzado): se limita a 6 sesiones y avisa", () => {
+  it("7 días (avanzado): se limita a 6 sesiones, usa una estructura válida y avisa", () => {
     const rutina = generar({ experience: "advanced", days: 7 });
-    expect(rutina.days.map((d) => d.name)).toEqual([
-      "Empuje A",
-      "Tirón A",
-      "Piernas A",
-      "Empuje B",
-      "Tirón B",
-      "Piernas B",
-    ]);
+    expect(rutina.days).toHaveLength(6);
+    expect(estructurasValidas(6, "advanced")).toContainEqual(
+      rutina.days.map((d) => d.name),
+    );
     expect(rutina.warnings.some((w) => w.includes("recomendamos 6 sesiones"))).toBe(true);
   });
 
