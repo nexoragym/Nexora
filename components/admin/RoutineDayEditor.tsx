@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import {
   ejercicioNuevo,
   moverElemento,
@@ -15,6 +16,12 @@ import { Card } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { ExercisePicker } from "./ExercisePicker";
 
+export type BuscadorProps = {
+  idBase: string;
+  yaUsados: ReadonlySet<string>;
+  onAnadir: (ejercicio: ResultadoBusqueda) => void;
+};
+
 type RoutineDayEditorProps = {
   indice: number;
   total: number;
@@ -22,6 +29,8 @@ type RoutineDayEditorProps = {
   onCambiar: (dia: DiaDraft) => void;
   onMover: (delta: -1 | 1) => void;
   onQuitar: () => void;
+  // Por defecto, el buscador del panel de administración.
+  Buscador?: ComponentType<BuscadorProps>;
 };
 
 type CampoNumeroProps = {
@@ -58,8 +67,10 @@ export function RoutineDayEditor({
   onCambiar,
   onMover,
   onQuitar,
+  Buscador,
 }: RoutineDayEditorProps) {
   const usados = new Set(dia.exercises.map((e) => e.exerciseId));
+  const Picker = Buscador ?? ExercisePicker;
 
   function cambiarEjercicio(j: number, parcial: Partial<EjercicioDraft>) {
     onCambiar({
@@ -221,7 +232,7 @@ export function RoutineDayEditor({
         </ol>
       )}
 
-      <ExercisePicker idBase={`dia-${indice}`} yaUsados={usados} onAnadir={anadir} />
+      <Picker idBase={`dia-${indice}`} yaUsados={usados} onAnadir={anadir} />
     </Card>
   );
 }

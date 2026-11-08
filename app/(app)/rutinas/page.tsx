@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
+import { ButtonLink } from "../../../components/ui/ButtonLink";
 import { RutinasContent } from "./RutinasContent";
 
 export const metadata: Metadata = { title: "Rutinas" };
@@ -32,10 +33,20 @@ export default function RutinasPage({
 }) {
   return (
     <PageContainer>
-      <PageHeader
-        title="Rutinas"
-        description="Rutinas listas para usar. Busca la tuya, elige una y empieza."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <PageHeader
+          title="Rutinas"
+          description="Rutinas listas para usar. Busca la tuya, elige una y empieza."
+        />
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink href="/mis-rutinas" variant="secondary" size="lg">
+            Mis rutinas
+          </ButtonLink>
+          <ButtonLink href="/mis-rutinas/nueva" size="lg">
+            Crear mi rutina
+          </ButtonLink>
+        </div>
+      </div>
       <Suspense fallback={<RutinasCargando />}>
         <RutinasContent searchParams={searchParams} />
       </Suspense>
