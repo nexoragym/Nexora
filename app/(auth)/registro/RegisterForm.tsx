@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Captcha } from "../../../components/auth/Captcha";
 import { Alert } from "../../../components/ui/Alert";
@@ -10,6 +11,7 @@ import {
   NOMBRE_MAXIMO,
   type AuthFormState,
 } from "../../../lib/auth";
+import { LEGAL } from "../../../lib/legal";
 import { registrarse } from "../actions";
 
 const estadoInicial: AuthFormState = {};
@@ -69,6 +71,36 @@ export function RegisterForm() {
         autoComplete="new-password"
         error={estado.fieldErrors?.repetir}
       />
+
+      <label className="flex cursor-pointer items-start gap-3 text-sm">
+        <input
+          type="checkbox"
+          name="acepto"
+          className="mt-0.5 size-5 shrink-0 accent-accent"
+        />
+        <span className="text-muted">
+          Tengo al menos {LEGAL.edadMinima} años y acepto las{" "}
+          <Link
+            href="/condiciones"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            condiciones de uso
+          </Link>{" "}
+          y la{" "}
+          <Link
+            href="/privacidad"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline underline-offset-4"
+          >
+            política de privacidad
+          </Link>
+          .
+        </span>
+      </label>
+
       <Captcha key={reinicio} />
       <Button type="submit" size="lg" fullWidth disabled={pendiente}>
         {pendiente ? "Creando cuenta…" : "Crear cuenta"}

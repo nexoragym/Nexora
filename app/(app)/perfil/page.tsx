@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageContainer, PageHeader } from "../../../components/layout/Page";
+import { PrivacyCard } from "../../../components/profile/PrivacyCard";
 import { ProfileContent } from "./ProfileContent";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -27,6 +28,7 @@ export default function PerfilPage() {
       <Suspense fallback={<PerfilCargando />}>
         <ProfileContent />
       </Suspense>
+      <PrivacyCard />
     </PageContainer>
   );
 }

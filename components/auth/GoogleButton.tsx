@@ -1,11 +1,13 @@
+import Link from "next/link";
 import { iniciarConGoogle } from "../../app/(auth)/actions";
+import { LEGAL } from "../../lib/legal";
 import { Button } from "../ui/Button";
 
-// Botón «Continuar con Google» y la línea «o» que lo separa del formulario.
+// Botón «Continuar con Google», el aviso de aceptación y la línea «o» que lo separa del formulario.
 export function GoogleButton() {
   return (
     <div className="flex flex-col gap-4">
-      <form action={iniciarConGoogle}>
+      <form action={iniciarConGoogle} className="flex flex-col gap-2">
         <Button type="submit" variant="secondary" size="lg" fullWidth>
           <span className="flex items-center justify-center gap-3">
             <svg viewBox="0 0 18 18" width="20" height="20" aria-hidden="true">
@@ -29,6 +31,18 @@ export function GoogleButton() {
             Continuar con Google
           </span>
         </Button>
+        <p className="text-center text-xs text-muted">
+          Al continuar, confirmas que tienes al menos {LEGAL.edadMinima} años y
+          aceptas las{" "}
+          <Link href="/condiciones" className="underline underline-offset-4">
+            condiciones de uso
+          </Link>{" "}
+          y la{" "}
+          <Link href="/privacidad" className="underline underline-offset-4">
+            política de privacidad
+          </Link>
+          .
+        </p>
       </form>
       <div className="flex items-center gap-3 text-sm text-muted" aria-hidden="true">
         <span className="h-px flex-1 bg-border" />

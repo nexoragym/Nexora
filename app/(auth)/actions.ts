@@ -8,6 +8,7 @@ import {
   validarRegistro,
   type AuthFormState,
 } from "../../lib/auth";
+import { LEGAL } from "../../lib/legal";
 import { createClient } from "../../lib/supabase/server";
 import { urlBase } from "../../lib/url-base";
 
@@ -15,6 +16,7 @@ import { urlBase } from "../../lib/url-base";
 const CAPTCHA_ACTIVO = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 const ERROR_CAPTCHA =
   "Completa la verificación de seguridad (espera a que aparezca el tick) y vuelve a intentarlo.";
+const ERROR_ACEPTAR = `Para crear la cuenta debes confirmar que tienes al menos ${LEGAL.edadMinima} años y aceptar las condiciones de uso y la política de privacidad.`;
 
 function textoDe(formData: FormData, campo: string): string {
   const valor = formData.get(campo);
@@ -64,10 +66,14 @@ export async function registrarse(
   const contrasena = textoDe(formData, "contrasena");
   const repetir = textoDe(formData, "repetir");
   const captcha = textoDe(formData, "captcha");
+  const acepto = textoDe(formData, "acepto") === "on";
 
   const fieldErrors = validarRegistro(nombre, correo, contrasena, repetir);
   if (hayErrores(fieldErrors)) {
     return { fieldErrors, nombre, correo };
+  }
+  if (!acepto) {
+    return { error: ERROR_ACEPTAR, nombre, correo };
   }
   if (CAPTCHA_ACTIVO && captcha === "") {
     return { error: ERROR_CAPTCHA, nombre, correo };

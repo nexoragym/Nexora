@@ -14,11 +14,21 @@ function primero(valor: string | string[] | undefined): string {
   return Array.isArray(valor) ? (valor[0] ?? "") : (valor ?? "");
 }
 
-// Avisos cuando se vuelve aquí desde la confirmación del correo o desde Google.
+// Avisos cuando se vuelve aquí desde la confirmación del correo, Google o el borrado de cuenta.
 async function AvisoLogin({ searchParams }: { searchParams: SearchParams }) {
   await connection();
-  const error = primero((await searchParams).error);
+  const params = await searchParams;
+  const error = primero(params.error);
+  const aviso = primero(params.aviso);
 
+  if (aviso === "eliminada") {
+    return (
+      <Alert tone="success" title="Cuenta eliminada">
+        Hemos borrado tu cuenta y tus datos. Gracias por haber probado la
+        aplicación.
+      </Alert>
+    );
+  }
   if (error === "confirmacion") {
     return (
       <Alert tone="warning" title="No se pudo completar el acceso">
