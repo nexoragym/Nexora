@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { Captcha } from "../../../components/auth/Captcha";
 import { Alert } from "../../../components/ui/Alert";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
@@ -14,8 +15,14 @@ import { registrarse } from "../actions";
 const estadoInicial: AuthFormState = {};
 
 export function RegisterForm() {
+  // Cada verificación del captcha sirve una sola vez: se renueva tras cada envío.
+  const [reinicio, setReinicio] = useState(0);
   const [estado, accion, pendiente] = useActionState(
-    registrarse,
+    async (previo: AuthFormState, datos: FormData) => {
+      const resultado = await registrarse(previo, datos);
+      setReinicio((n) => n + 1);
+      return resultado;
+    },
     estadoInicial,
   );
 
@@ -62,6 +69,7 @@ export function RegisterForm() {
         autoComplete="new-password"
         error={estado.fieldErrors?.repetir}
       />
+      <Captcha key={reinicio} />
       <Button type="submit" size="lg" fullWidth disabled={pendiente}>
         {pendiente ? "Creando cuenta…" : "Crear cuenta"}
       </Button>

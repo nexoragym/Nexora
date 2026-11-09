@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { connection } from "next/server";
 import { StreakCard } from "../../../components/streak/StreakCard";
 import { Alert } from "../../../components/ui/Alert";
@@ -277,6 +278,32 @@ export async function DashboardContent() {
             value={hayDatos ? String(descanso) : "—"}
             hint={hayDatos ? "En los últimos 7 días" : sinDatos}
           />
+        </div>
+      </section>
+
+      <section aria-labelledby="herramientas" className="flex flex-col gap-4">
+        <h3 id="herramientas" className="text-xl font-semibold">
+          Herramientas
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Link
+            href="/mis-rutinas"
+            className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
+          >
+            <span className="text-lg font-semibold">Mis rutinas</span>
+            <span className="text-sm text-muted">
+              Crea tu propia rutina eligiendo los ejercicios.
+            </span>
+          </Link>
+          <Link
+            href="/imc"
+            className="flex flex-col gap-2 rounded-3xl border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-accent/60 hover:bg-surface-2"
+          >
+            <span className="text-lg font-semibold">Calculadora de IMC</span>
+            <span className="text-sm text-muted">
+              Calcula tu índice de masa corporal. Es solo una orientación.
+            </span>
+          </Link>
         </div>
       </section>
     </div>

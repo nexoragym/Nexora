@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseEnv } from "./lib/supabase/env";
 
 // Pantallas que se pueden ver sin iniciar sesión. Todo lo demás es privado.
-const rutasPublicas = ["/login", "/registro", "/empezar"];
+// "/auth" es donde vuelven el correo de confirmación y Google.
+const rutasPublicas = ["/login", "/registro", "/empezar", "/auth"];
 
 function esRutaPublica(pathname: string): boolean {
   return (
