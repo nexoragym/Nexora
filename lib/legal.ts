@@ -12,8 +12,8 @@ export type DatosLegales = {
 };
 
 export const LEGAL: DatosLegales = {
-  titular: "[TU NOMBRE Y APELLIDOS]",
-  email: "[TU CORREO DE CONTACTO]",
+  titular: "Nexora.S.A",
+  email: "nexoragyminfo@gmail.com",
   nif: "",
   domicilio: "",
   ultimaActualizacion: "9 de noviembre de 2026",
