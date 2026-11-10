@@ -351,11 +351,28 @@ export function OnboardingFlow() {
 
           {actual.id === "limitations" ? (
             <>
-              <p className="max-w-2xl text-sm text-muted">
-                Solo tú podrás ver esta información. NEXORA no da consejo
-                médico: si tienes una lesión o dolor, consulta con un
-                profesional sanitario antes de entrenar.
-              </p>
+              <div className="flex max-w-2xl flex-col gap-2 text-sm text-muted">
+                <p>
+                  Es totalmente opcional. Si marcas alguna zona, aceptas que
+                  usemos esa información, que puede considerarse un dato de
+                  salud, solo para evitar ejercicios que suelen cargarla al
+                  preparar tu plan. Solo tú puedes verla y puedes borrarla
+                  eliminando tu cuenta desde tu Perfil. Más información en la{" "}
+                  <Link
+                    href="/privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-foreground underline underline-offset-4"
+                  >
+                    política de privacidad
+                  </Link>
+                  .
+                </p>
+                <p>
+                  NEXORA no da consejo médico: si tienes una lesión o dolor,
+                  consulta con un profesional sanitario antes de entrenar.
+                </p>
+              </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 {LIMITATIONS.map((valor) => (
                   <OptionCard

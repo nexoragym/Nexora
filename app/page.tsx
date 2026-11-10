@@ -47,15 +47,20 @@ const pasos = [
 ];
 
 const disponible = [
-  "Plan personalizado",
+  "Plan personalizado según tus respuestas",
+  "Rutinas listas para usar, con buscador y filtros",
+  "Crea tus propias rutinas eligiendo cualquier ejercicio",
   "Biblioteca de ejercicios con búsqueda y filtros",
-  "Adaptado a tu material y a las zonas que quieres cuidar",
+  "Entrenamiento guiado con temporizador de descansos",
+  "Registro de series, kilos y repeticiones",
+  "Progreso con gráficas y racha de entrenamientos",
+  "Calculadora de IMC",
 ];
 
 const proximamente = [
-  "Registro de series, kilos y repeticiones",
-  "Progreso con gráficas y rachas",
   "Logros y retos",
+  "Rangos por músculo",
+  "Más ejercicios, rutinas e imágenes",
 ];
 
 export default function LandingPage() {
@@ -225,11 +230,22 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-border px-4 py-6 text-center text-sm text-muted sm:px-8">
+      <footer className="relative z-10 flex flex-col items-center gap-3 border-t border-border px-4 py-6 text-center text-sm text-muted sm:px-8">
         <p>
           NEXORA no da consejo médico: si tienes una lesión o dolor, consulta
           con un profesional sanitario antes de entrenar.
         </p>
+        <nav
+          aria-label="Información legal"
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
+        >
+          <Link href="/privacidad" className="hover:text-foreground">
+            Política de privacidad
+          </Link>
+          <Link href="/condiciones" className="hover:text-foreground">
+            Condiciones de uso
+          </Link>
+        </nav>
       </footer>
     </div>
   );
